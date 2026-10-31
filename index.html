@@ -2,13 +2,13 @@
 <html lang="id"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>CoDose Calculator</title>
-<meta name="theme-color" content="#eaf5ff">
+<meta name="theme-color" content="#102F60">
 <link rel="manifest" href="manifest.json">
-<link rel="icon" href="icon-192.png"><link rel="apple-touch-icon" href="icon-192.png">
+<link rel="icon" type="image/png" href="icon%20CDC.png"><link rel="apple-touch-icon" href="icon%20CDC.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="Animasi_Masuk/codose-splash/codose-splash/css/splash.css" onerror="window.cdSplashAssetFailed=true;document.dispatchEvent(new Event('codose:splash-error'))">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="Animasi_Masuk/splash.css" onerror="window.cdSplashAssetFailed=true;document.dispatchEvent(new Event('codose:splash-error'))">
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet">
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 <style>
@@ -28,13 +28,18 @@ body{font-family:"DM Sans",sans-serif;background:var(--page);color:var(--ink);tr
 .nav-link-app{width:100%;border:0;background:transparent;text-align:left;font-family:inherit}
 .nav-link-app:hover,.nav-link-app.on{color:var(--accent-hover);background:var(--accent-soft)}
 .nav-mark{width:24px;height:24px;flex:none;display:grid;place-items:center;color:var(--accent)}
-.nav-mark img{display:block;width:24px;height:24px;object-fit:cover;border-radius:6px}
+.nav-mark svg,.connection-control svg{width:21px;height:21px;stroke:currentColor;fill:none;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round}
 .side-bottom{margin-top:auto;display:flex;align-items:center;justify-content:space-between;padding:.75rem .45rem .1rem;border-top:1px solid var(--line)}
 .mobile-nav{display:none}
-.theme-label{font-size:.75rem;color:var(--muted);font-weight:600}
-.theme-toggle{width:42px;height:42px;display:grid;place-items:center;border:1px solid var(--line);border-radius:50%;background:var(--surface-soft);color:var(--accent-hover);transition:transform .2s ease,background-color .2s ease,color .2s ease}
-.theme-toggle:hover{transform:rotate(12deg);background:var(--accent-soft)}
-.theme-toggle svg{width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.theme-switch{position:relative;width:58px;height:32px;flex:none;padding:2px;border:1px solid var(--line);border-radius:999px;background:var(--accent-soft);cursor:pointer;transition:background-color .2s ease,border-color .2s ease}
+.theme-thumb{position:absolute;top:2px;left:2px;width:26px;height:26px;display:grid;place-items:center;border-radius:50%;background:var(--accent);color:#fff;box-shadow:0 1px 3px #102f472e;transform:translateX(0);transition:transform .22s cubic-bezier(.2,.8,.2,1),background-color .2s ease,color .2s ease}
+.theme-switch[aria-checked="false"] .theme-thumb{transform:translateX(26px)}
+.theme-switch[aria-checked="true"] .theme-thumb{color:#102231}
+.theme-thumb svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.theme-switch:focus-visible,.connection-control:focus-visible{outline:3px solid color-mix(in srgb,var(--accent) 45%,transparent);outline-offset:3px}
+.connection-control{width:36px;height:36px;display:grid;place-items:center;border:1px solid transparent;border-radius:8px;background:transparent;color:var(--muted);cursor:pointer;transition:background-color .18s ease,color .18s ease}
+.connection-control:hover{background:var(--accent-soft);color:var(--accent-hover)}
+.side-actions,.mobile-actions{display:flex;align-items:center;gap:.55rem}
 .mobile-header{display:none}
 .main{flex:1;min-width:0;padding:1.6rem clamp(1rem,3vw,2.5rem);max-width:1600px;margin:0 auto}
 h1,h2,h3,.h1,.h2,.h3,.h4,.h5,.h6{font-family:Manrope,"DM Sans",sans-serif;color:var(--ink)}
@@ -57,7 +62,7 @@ h1,h2,h3,.h1,.h2,.h3,.h4,.h5,.h6{font-family:Manrope,"DM Sans",sans-serif;color:
 .side{display:none}
 .mobile-header{position:sticky;top:0;z-index:10;display:flex;align-items:center;justify-content:space-between;min-height:calc(58px + env(safe-area-inset-top,0px));padding:env(safe-area-inset-top,0px) 1rem 0;background:var(--surface);border-bottom:1px solid var(--line)}
 .mobile-title{font:800 1rem Manrope,sans-serif;color:var(--ink)}
-.mobile-header .theme-toggle{width:38px;height:38px}
+.mobile-actions{gap:.65rem}
 .main{padding:.9rem .8rem calc(100px + env(safe-area-inset-bottom,0px))}
 .mobile-nav{position:fixed;z-index:15;right:0;bottom:0;left:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.15rem;padding:.45rem .5rem calc(.45rem + env(safe-area-inset-bottom,0px));background:var(--surface);border-top:1px solid var(--line);box-shadow:0 -8px 22px #244c6b0d}
 .mobile-nav .nav-link-app{flex-direction:column;justify-content:center;gap:.15rem;padding:.35rem .15rem;font-size:.68rem;line-height:1.1}
@@ -68,38 +73,31 @@ h1,h2,h3,.h1,.h2,.h3,.h4,.h5,.h6{font-family:Manrope,"DM Sans",sans-serif;color:
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;transition:none!important}}
 </style></head>
 <body>
-<div id="codose-splash" class="cd-splash" data-hold="1400" data-autohide="true" data-dev="false" role="img" aria-label="CoDose Calculator">
+<div id="codose-splash" class="cd-splash" data-hold="1600" data-autohide="true" data-dev="false" role="img" aria-label="CoDose Calculator">
 	<div class="cd-stage">
-		<svg id="cd-logo" class="cd-logo" viewBox="0 0 460 250" aria-hidden="true">
-			<defs>
-				<radialGradient id="cd-grad" cx=".32" cy=".25" r=".95">
-					<stop offset="0" stop-color="#3DBDB0"/><stop offset=".55" stop-color="#0F766E"/><stop offset="1" stop-color="#0A5A54"/>
-				</radialGradient>
-				<radialGradient id="cd-sh"><stop offset="0" stop-color="#10302D" stop-opacity=".24"/><stop offset="1" stop-color="#10302D" stop-opacity="0"/></radialGradient>
-				<path id="cd-c-shape" d="M190.9 69.1A72 72 0 1 1 89.1 69.1" fill="none" stroke-width="40" stroke-linecap="round"/>
-				<path id="cd-shape" fill-rule="evenodd"/>
-			</defs>
-			<ellipse id="cd-ground" cx="230" cy="226" rx="165" ry="10" fill="url(#cd-sh)" opacity="0"/>
-			<g id="cd-c" opacity="0">
-				<use href="#cd-c-shape" stroke="#073F3A" transform="translate(0 9)"/>
-				<use href="#cd-c-shape" stroke="#094A44" transform="translate(0 4.5)"/>
-				<use href="#cd-c-shape" stroke="url(#cd-grad)"/>
-			</g>
-			<g id="cd-ball" opacity="0">
-				<use id="cd-u1" href="#cd-shape" fill="#073F3A"/>
-				<use id="cd-u2" href="#cd-shape" fill="#094A44"/>
-				<use id="cd-u3" href="#cd-shape" fill="url(#cd-grad)"/>
-				<g id="cd-mark"><rect x="4" y="-2.2" width="9" height="4.4" rx="2.2" fill="#fff" opacity=".4"/></g>
+		<svg id="cd-logo" class="cd-logo" viewBox="-330 -110 660 220" aria-hidden="true">
+			<defs><path id="cd-c-path" d="M33.4 -39.8A52 52 0 1 0 33.4 39.8"/></defs>
+			<g id="cd-world">
+				<g fill="none" stroke="#fff" stroke-width="22" stroke-linecap="round" stroke-linejoin="round">
+					<use id="cd-C" href="#cd-c-path" opacity="0"/>
+					<circle id="cd-o1" r="34" opacity="0"/>
+					<circle id="cd-o2" r="34" opacity="0"/>
+					<path id="cd-s" d="M13 -27.9A17 17 0 1 0 0 0A17 17 0 1 1 -13 27.9" opacity="0"/>
+					<path id="cd-e" d="M-34 0H34A34 34 0 1 0 26.05 21.9" opacity="0"/>
+				</g>
+				<g id="cd-ball" opacity="0">
+					<path id="cd-shape" fill-rule="evenodd"/>
+					<g id="cd-dot"><circle cx="13" r="3.2" fill="#fff" opacity=".9"/></g>
+				</g>
 			</g>
 		</svg>
-		<div class="cd-name">CoDose</div>
-		<div class="cd-sub">Calculator</div>
+		<div class="cd-sub">calculator</div>
 	</div>
 </div>
 <div id="app-shell" hidden>
-<header class="mobile-header"><span class="mobile-title">CoDose Calculator</span><button class="theme-toggle" type="button" aria-label="Ganti tema" onclick="toggleTheme()"></button></header>
+<header class="mobile-header"><span class="mobile-title">CoDose Calculator</span><div class="mobile-actions"><button class="connection-control" type="button" aria-label="Koneksi dan sinkronisasi" title="Koneksi dan sinkronisasi" onclick="openConnections()"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3v5m8-5v5M5 8h14v2a7 7 0 0 1-14 0V8Zm7 9v4m-3 0h6"/></svg></button><button class="theme-switch" type="button" role="switch" aria-label="Ubah tema" aria-checked="false" onclick="toggleTheme()"><span class="theme-thumb"></span></button></div></header>
 <div class="app">
-<aside class="side"><div class="brand"><img src="icon-192.png" alt=""><span>CoDose</span></div><nav id="nav" aria-label="Navigasi utama"></nav><div class="side-bottom"><span class="theme-label" id="theme-label">Mode terang</span><button class="theme-toggle" type="button" aria-label="Ganti tema" onclick="toggleTheme()"></button></div></aside>
+<aside class="side"><div class="brand"><img src="icon%20CDC.png" alt=""><span>CoDose</span></div><nav id="nav" aria-label="Navigasi utama"></nav><div class="side-bottom"><button class="connection-control" type="button" aria-label="Koneksi dan sinkronisasi" title="Koneksi dan sinkronisasi" onclick="openConnections()"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3v5m8-5v5M5 8h14v2a7 7 0 0 1-14 0V8Zm7 9v4m-3 0h6"/></svg></button><button class="theme-switch" type="button" role="switch" aria-label="Ubah tema" aria-checked="false" onclick="toggleTheme()"><span class="theme-thumb"></span></button></div></aside>
 <nav class="mobile-nav" id="mobile-nav" aria-label="Navigasi utama"></nav>
 <main class="main">
 
@@ -135,8 +133,7 @@ h1,h2,h3,.h1,.h2,.h3,.h4,.h5,.h6{font-family:Manrope,"DM Sans",sans-serif;color:
 </section>
 
 <section id="v-hist" hidden>
-<div class="d-flex justify-content-between align-items-center gap-2 mb-3"><h2 class="h4 mb-0">Riwayat pengukuran</h2><div class="d-flex gap-2">
-<button class="btn btn-outline-secondary btn-sm" onclick="openConnections()">Koneksi</button><button class="btn btn-outline-secondary btn-sm" onclick="pull()">Muat dari Supabase</button></div></div>
+<h2 class="h4 mb-3">Riwayat pengukuran</h2>
 <div class="card"><div class="table-responsive"><table class="table table-hover align-middle mb-0 small">
 <thead><tr><th>Tanggal</th><th>Mesin</th><th>Chamber</th><th>Dw(zref) Gy</th><th></th></tr></thead><tbody id="hist"></tbody></table></div></div>
 </section>
@@ -151,7 +148,7 @@ h1,h2,h3,.h1,.h2,.h3,.h4,.h5,.h6{font-family:Manrope,"DM Sans",sans-serif;color:
 <label class="form-label small mb-0">Anon key</label><input class="form-control mb-2" id="s_key">
 <label class="form-label small mb-0">Email</label><input class="form-control mb-2" id="s_mail" type="email">
 <label class="form-label small mb-0">Password</label><input class="form-control mb-3" id="s_pass" type="password" autocomplete="current-password">
-<div class="d-flex gap-2"><button class="btn btn-navy" onclick="saveSet()">Simpan pengaturan</button><button class="btn btn-outline-secondary" onclick="login()">Masuk</button></div>
+<div class="d-flex flex-wrap gap-2"><button class="btn btn-navy" onclick="saveSet()">Simpan pengaturan</button><button class="btn btn-outline-secondary" onclick="login()">Masuk</button><button class="btn btn-outline-secondary" onclick="pull()">Muat dari Supabase</button></div>
 </div></div></div>
 <div class="col-lg-6"><div class="card mb-3"><div class="card-body"><h3 class="h6">Informasi protokol</h3>
 <p class="small mb-1">IAEA TRS-398, Co-60 (kualitas berkas Q = Q<sub>0</sub>, k<sub>Q</sub> = 1). k<sub>s</sub> memakai metode dua tegangan untuk radiasi kontinu (TRS-398 Tabel 9), dengan interpolasi linear untuk V<sub>1</sub>/V<sub>2</sub> antar baris tabel. Koefisien perlu Anda cocokkan dengan dokumen TRS-398 Anda.</p>
@@ -183,7 +180,7 @@ create policy own on measurements for all
 	if(window.cdSplashAssetFailed)reveal();
 })();
 </script>
-<script src="Animasi_Masuk/codose-splash/codose-splash/js/splash.js" onerror="window.cdSplashAssetFailed=true;document.dispatchEvent(new Event('codose:splash-error'))"></script>
+<script src="Animasi_Masuk/splash.js" onerror="window.cdSplashAssetFailed=true;document.dispatchEvent(new Event('codose:splash-error'))"></script>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -258,13 +255,13 @@ d.save(`CoDose_${rec.I.date||'laporan'}.pdf`)}
 
 function saveSet(){set={...set,user:$('#s_user').value,inst:$('#s_inst').value,sburl:$('#s_url').value.trim(),sbkey:$('#s_key').value.trim(),mail:$('#s_mail').value};LS('cd_set',set);initSB();closeConnections();toast('Pengaturan tersimpan.')}
 async function login(){if(!sb)return toast('Simpan URL dan anon key dulu.',1);try{const{error}=await sb.auth.signInWithPassword({email:$('#s_mail').value,password:$('#s_pass').value});error?toast(error.message,1):toast('Berhasil masuk.')}catch(e){toast('Login gagal: '+e.message,1)}}
-const theme=()=>{const mode=set.theme==='dark'?'dark':'light';document.documentElement.setAttribute('data-bs-theme',mode);document.querySelectorAll('.theme-toggle').forEach(b=>{b.innerHTML=mode==='light'?'<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M4.93 4.93l1.42 1.42m11.3 11.3 1.42 1.42M2 12h2m16 0h2M4.93 19.07l1.42-1.42m11.3-11.3 1.42-1.42"/></svg>':'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.2 15.4A8.5 8.5 0 0 1 8.6 3.8 8.6 8.6 0 1 0 20.2 15.4Z"/></svg>';b.setAttribute('aria-label',mode==='light'?'Aktifkan tema gelap':'Aktifkan tema terang')});$('#theme-label').textContent=mode==='light'?'Mode terang':'Mode gelap'};
+const theme=()=>{const mode=set.theme==='dark'?'dark':'light';document.documentElement.setAttribute('data-bs-theme',mode);document.querySelectorAll('.theme-switch').forEach(b=>{b.setAttribute('aria-checked',String(mode==='dark'));b.setAttribute('aria-label',mode==='light'?'Light Mode':'Dark Mode');b.querySelector('.theme-thumb').innerHTML=mode==='light'?'<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M4.93 4.93l1.42 1.42m11.3 11.3 1.42 1.42M2 12h2m16 0h2M4.93 19.07l1.42-1.42m11.3-11.3 1.42-1.42"/></svg>':'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.2 15.4A8.5 8.5 0 0 1 8.6 3.8 8.6 8.6 0 1 0 20.2 15.4Z"/></svg>'})};
 function toggleTheme(){set.theme=set.theme==='dark'?'light':'dark';LS('cd_set',set);theme()}
 const openConnections=()=>{[['user','user'],['inst','inst'],['url','sburl'],['key','sbkey'],['mail','mail']].forEach(([i,s])=>{$('#s_'+i).value=set[s]||''});$('#connections').showModal()};
 const closeConnections=()=>$('#connections').close();
 
-const V=[['dash','Dashboard'],['calc','Kalkulator'],['hist','Riwayat']];
-const navMarkup=()=>V.map(([k,l])=>`<button type="button" class="nav-link-app" data-v="${k}" onclick="show('${k}')"><span class="nav-mark"><img src="icon-192.png" alt=""></span><span>${l}</span></button>`).join('');
+const V=[['dash','Dashboard','<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="8" height="8" rx="1.5"/><rect x="13" y="3" width="8" height="5" rx="1.5"/><rect x="13" y="10" width="8" height="11" rx="1.5"/><rect x="3" y="13" width="8" height="8" rx="1.5"/></svg>'],['calc','Kalkulator','<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="2.5" width="16" height="19" rx="2.5"/><path d="M8 7h8M8 12h.01M12 12h.01M16 12h.01M8 16h.01M12 16h.01M16 16h.01"/></svg>'],['hist','Riwayat','<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 2.64-6.36L3 8"/><path d="M3 3v5h5m4-1v5l3 2"/></svg>']];
+const navMarkup=()=>V.map(([k,l,icon])=>`<button type="button" class="nav-link-app" data-v="${k}" onclick="show('${k}')"><span class="nav-mark">${icon}</span><span>${l}</span></button>`).join('');
 $('#nav').innerHTML=navMarkup();$('#mobile-nav').innerHTML=navMarkup();
 function show(k){V.forEach(([v])=>$('#v-'+v).hidden=v!==k);document.querySelectorAll('.nav-link-app').forEach(a=>{const active=a.dataset.v===k;a.classList.toggle('on',active);if(active)a.setAttribute('aria-current','page');else a.removeAttribute('aria-current')});
 if(k==='hist')renderHist();if(k==='dash'){const h=hist[0];$('#d-n').textContent=hist.length;$('#d-date').textContent=h?h.I.date:'-';$('#d-dz').textContent=h?x(h.R.f.Dz)+' Gy':'-'}scrollTo(0,0)}

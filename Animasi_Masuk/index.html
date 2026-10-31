@@ -3,41 +3,34 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#F5F3EE">
+<meta name="theme-color" content="#102F60">
 <title>CoDose — Splash</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/splash.css">
 </head>
 <body>
 <!-- ===== CoDose splash (salin blok ini ke web app utama) ===== -->
-<div id="codose-splash" class="cd-splash" data-hold="1400" data-autohide="false" data-dev="true" role="img" aria-label="CoDose Calculator">
+<div id="codose-splash" class="cd-splash" data-hold="1600" data-autohide="false" data-dev="true" role="img" aria-label="CoDose calculator">
   <div class="cd-stage">
-    <svg id="cd-logo" class="cd-logo" viewBox="0 0 460 250" aria-hidden="true">
-      <defs>
-        <radialGradient id="cd-grad" cx=".32" cy=".25" r=".95">
-          <stop offset="0" stop-color="#3DBDB0"/><stop offset=".55" stop-color="#0F766E"/><stop offset="1" stop-color="#0A5A54"/>
-        </radialGradient>
-        <radialGradient id="cd-sh"><stop offset="0" stop-color="#10302D" stop-opacity=".24"/><stop offset="1" stop-color="#10302D" stop-opacity="0"/></radialGradient>
-        <path id="cd-c-shape" d="M190.9 69.1A72 72 0 1 1 89.1 69.1" fill="none" stroke-width="40" stroke-linecap="round"/>
-        <path id="cd-shape" fill-rule="evenodd"/>
-      </defs>
-      <ellipse id="cd-ground" cx="230" cy="226" rx="165" ry="10" fill="url(#cd-sh)" opacity="0"/>
-      <g id="cd-c" opacity="0">
-        <use href="#cd-c-shape" stroke="#073F3A" transform="translate(0 9)"/>
-        <use href="#cd-c-shape" stroke="#094A44" transform="translate(0 4.5)"/>
-        <use href="#cd-c-shape" stroke="url(#cd-grad)"/>
-      </g>
-      <g id="cd-ball" opacity="0">
-        <use id="cd-u1" href="#cd-shape" fill="#073F3A"/>
-        <use id="cd-u2" href="#cd-shape" fill="#094A44"/>
-        <use id="cd-u3" href="#cd-shape" fill="url(#cd-grad)"/>
-        <g id="cd-mark"><rect x="4" y="-2.2" width="9" height="4.4" rx="2.2" fill="#fff" opacity=".4"/></g>
+    <svg id="cd-logo" class="cd-logo" viewBox="-330 -110 660 220" aria-hidden="true">
+      <defs><path id="cd-c-path" d="M33.4 -39.8A52 52 0 1 0 33.4 39.8"/></defs>
+      <g id="cd-world">
+        <g fill="none" stroke="#fff" stroke-width="22" stroke-linecap="round" stroke-linejoin="round">
+          <use id="cd-C" href="#cd-c-path" opacity="0"/>
+          <circle id="cd-o1" r="34" opacity="0"/>
+          <circle id="cd-o2" r="34" opacity="0"/>
+          <path id="cd-s" d="M13 -27.9A17 17 0 1 0 0 0A17 17 0 1 1 -13 27.9" opacity="0"/>
+          <path id="cd-e" d="M-34 0H34A34 34 0 1 0 26.05 21.9" opacity="0"/>
+        </g>
+        <g id="cd-ball" opacity="0">
+          <path id="cd-shape" fill-rule="evenodd"/>
+          <g id="cd-dot"><circle cx="13" r="3.2" fill="#fff" opacity=".9"/></g>
+        </g>
       </g>
     </svg>
-    <div class="cd-name">CoDose</div>
-    <div class="cd-sub">Calculator</div>
+    <div class="cd-sub">calculator</div>
   </div>
 </div>
 <!-- ===== end splash ===== -->
