@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="id"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>CoDose Calculator</title>
+<meta name="theme-color" content="#0b2a5b">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon-192.png"><link rel="apple-touch-icon" href="icon-192.png">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<style>
+:root{--navy:#0b2a5b}
+body{font-family:Inter,Roboto,sans-serif;background:#f1f3f6}
+[data-bs-theme=dark] body{background:#12161d}
+.app{display:flex;min-height:100vh}
+.side{width:220px;flex:none;background:var(--navy);position:sticky;top:0;height:100vh;padding:1rem .75rem}
+.side a{display:block;color:#c9d6f0;padding:.55rem .75rem;border-radius:8px;text-decoration:none;cursor:pointer;white-space:nowrap}
+.side a.on,.side a:hover{background:#17407f;color:#fff}
+.main{flex:1;min-width:0;padding:1.25rem}
+.card{border:0;border-radius:14px;box-shadow:0 1px 3px #0002}
+.res{font-size:2.6rem;font-weight:700;color:var(--navy);line-height:1.1}
+[data-bs-theme=dark] .res{color:#8fb4ff}
+.btn-navy{background:var(--navy);color:#fff}.btn-navy:hover{background:#17407f;color:#fff}
+#toast{position:fixed;right:1rem;bottom:1rem;z-index:9;max-width:90vw}
+@media(max-width:767px){
+.app{flex-direction:column}
+.side{width:100%;height:auto;z-index:5;display:flex;gap:.25rem;overflow-x:auto;padding:.5rem;padding-top:calc(.5rem + env(safe-area-inset-top,0px))}
+.side h1{display:none}.main{padding:.75rem}.res{font-size:2rem}}
+</style></head>
+<body>
+<div class="app">
+<nav class="side" id="nav"><h1 class="h5 text-white fw-bold px-2 mb-3">CoDose Calculator</h1></nav>
+<main class="main">
+
+<section id="v-dash">
+<h2 class="h4 mb-3">Dashboard</h2>
+<div class="row g-3 mb-3">
+<div class="col-6 col-lg-3"><div class="card"><div class="card-body"><div class="small text-secondary">Pengukuran tersimpan</div><div class="h2 mb-0" id="d-n">0</div></div></div></div>
+<div class="col-6 col-lg-3"><div class="card"><div class="card-body"><div class="small text-secondary">Tanggal terakhir</div><div class="h5 mb-0" id="d-date">-</div></div></div></div>
+<div class="col-12 col-lg-6"><div class="card"><div class="card-body"><div class="small text-secondary">Dw(zref) terakhir</div><div class="res" id="d-dz">-</div></div></div></div>
+</div>
+<div class="card mb-3"><div class="card-body"><h3 class="h6">Protokol</h3>
+<p class="mb-1 small">Dosis serap air Co-60 mengikuti IAEA TRS-398: D<sub>w</sub> = M<sub>corr</sub> · N<sub>D,w</sub> · k<sub>Q</sub> (k<sub>Q</sub> = 1 untuk Co-60), dengan M<sub>corr</sub> = M · k<sub>TP</sub> · k<sub>elec</sub> · k<sub>pol</sub> · k<sub>s</sub>.</p>
+<button class="btn btn-navy btn-sm mt-2" onclick="show('calc')">Mulai pengukuran</button></div></div>
+<div class="alert alert-warning small mb-0">Alat bantu hitung, bukan pengganti verifikasi fisikawan medis. Validasi hasil dengan perhitungan manual dan worksheet IAEA resmi sebelum dipakai untuk keputusan klinis.</div>
+</section>
+
+<section id="v-calc" hidden>
+<h2 class="h4 mb-3">Kalkulator dosis absolut</h2>
+<div class="row g-3">
+<div class="col-xl-8" id="form"></div>
+<div class="col-xl-4"><div class="card sticky-xl-top" style="top:1rem"><div class="card-body">
+<div class="small text-secondary">Dw(zref)</div><div class="res" id="rz">-</div>
+<div class="small text-secondary mt-3">Dw(zmax)</div><div class="h4 mb-0" id="rm">-</div>
+<div class="small text-secondary mt-3">Laju dosis pada zmax</div><div class="h5 mb-0" id="rr">-</div>
+<div id="warn" class="small mt-2 text-secondary"></div>
+<div class="d-flex flex-wrap gap-2 mt-3">
+<button class="btn btn-navy" onclick="save()">Simpan</button>
+<button class="btn btn-outline-secondary" onclick="pdf(cur&&{I:cur.I,R:cur.R})">Ekspor PDF</button>
+<button class="btn btn-outline-secondary" onclick="build()">Reset</button></div>
+<details class="mt-3" open><summary class="fw-semibold">Detail perhitungan</summary>
+<div class="table-responsive"><table class="table table-sm small align-middle mb-0"><tbody id="det"></tbody></table></div></details>
+</div></div></div></div>
+</section>
+
+<section id="v-hist" hidden>
+<div class="d-flex justify-content-between align-items-center mb-3"><h2 class="h4 mb-0">Riwayat pengukuran</h2>
+<button class="btn btn-outline-secondary btn-sm" onclick="pull()">Muat dari Supabase</button></div>
+<div class="card"><div class="table-responsive"><table class="table table-hover align-middle mb-0 small">
+<thead><tr><th>Tanggal</th><th>Mesin</th><th>Chamber</th><th>Dw(zref) Gy</th><th></th></tr></thead><tbody id="hist"></tbody></table></div></div>
+</section>
+
+<section id="v-set" hidden>
+<h2 class="h4 mb-3">Pengaturan</h2>
+<div class="row g-3"><div class="col-lg-6"><div class="card"><div class="card-body"><h3 class="h6">Pengguna dan tampilan</h3>
+<label class="form-label small mb-0">Nama pengguna</label><input class="form-control mb-2" id="s_user">
+<label class="form-label small mb-0">Institusi</label><input class="form-control mb-2" id="s_inst">
+<label class="form-label small mb-0">Tema</label><select class="form-select mb-3" id="s_theme"><option value="light">Terang</option><option value="dark">Gelap</option></select>
+<h3 class="h6">Supabase</h3>
+<label class="form-label small mb-0">Project URL</label><input class="form-control mb-2" id="s_url" placeholder="https://xxxx.supabase.co">
+<label class="form-label small mb-0">Anon key</label><input class="form-control mb-2" id="s_key">
+<label class="form-label small mb-0">Email</label><input class="form-control mb-2" id="s_mail" type="email">
+<label class="form-label small mb-0">Password</label><input class="form-control mb-3" id="s_pass" type="password" autocomplete="current-password">
+<div class="d-flex gap-2"><button class="btn btn-navy" onclick="saveSet()">Simpan pengaturan</button><button class="btn btn-outline-secondary" onclick="login()">Masuk</button></div>
+</div></div></div>
+<div class="col-lg-6"><div class="card mb-3"><div class="card-body"><h3 class="h6">Informasi protokol</h3>
+<p class="small mb-1">IAEA TRS-398, Co-60 (kualitas berkas Q = Q<sub>0</sub>, k<sub>Q</sub> = 1). k<sub>s</sub> memakai metode dua tegangan untuk radiasi kontinu (TRS-398 Tabel 9), dengan interpolasi linear untuk V<sub>1</sub>/V<sub>2</sub> antar baris tabel. Koefisien perlu Anda cocokkan dengan dokumen TRS-398 Anda.</p>
+<p class="small mb-0">CoDose Calculator v1.0, aplikasi pribadi. Bekerja offline setelah dibuka sekali saat online.</p></div></div>
+<div class="card"><div class="card-body"><h3 class="h6">SQL tabel Supabase</h3>
+<pre class="small mb-0" style="white-space:pre-wrap">create table measurements(
+ id bigint generated always as identity primary key,
+ user_id uuid default auth.uid(),
+ measured_on date, machine text, chamber text,
+ data jsonb, created_at timestamptz default now());
+alter table measurements enable row level security;
+create policy own on measurements for all
+ using (user_id = auth.uid()) with check (user_id = auth.uid());</pre></div></div></div></div>
+</section>
+</main></div>
+<div id="toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script>
+const $=s=>document.querySelector(s),LS=(k,v)=>{try{if(v===undefined)return JSON.parse(localStorage.getItem(k)||'null');localStorage.setItem(k,JSON.stringify(v))}catch(e){return null}};
+// [id,label,type,default]; type n=number, t=text, d=date, s:A,B=select
+const G=[
+['Reference Conditions',[['machine','Mesin','t','Co-60'],['phantom','Phantom','t','Water'],['setup','Setup','s:SSD,SAD','SSD'],['ssd','SSD/SAD (cm)','n','80'],['fs','Field size (cm)','t','10x10'],['rd','Reference distance (cm)','n','80'],['zref','zref (cm)','n','5']]],
+['Chamber',[['cmodel','Model chamber','t',''],['cser','Serial number','t',''],['ctype','Tipe chamber','t','Cylindrical']]],
+['Calibration',[['nd','N_D,w (Gy/nC)','n',''],['p0','P0 (kPa)','n','101.325'],['t0','T0 (C)','n','20'],['kelec','k_elec','n','1']]],
+['Measurement',[['date','Tanggal','d',new Date().toISOString().slice(0,10)],['m','Raw reading M (nC)','n',''],['time','Waktu (min)','n','1'],['temp','Suhu (C)','n',''],['press','Tekanan (kPa)','n','']]],
+['Polarity',[['mp','M+ (nC)','n',''],['mn','M- (nC)','n','']]],
+['Recombination',[['v1','V1 (V)','n','300'],['m1','M1 (nC)','n',''],['v2','V2 (V)','n','150'],['m2','M2 (nC)','n','']]],
+['Dose at zmax',[['pdd','PDD(zref) % (SSD) atau TMR(zref) (SAD)','n','']]],
+['Catatan',[['note','Catatan pengukuran','t','']]]];
+const IDS=G.flatMap(x=>x[1].map(f=>f[0]));
+const KS=[[2,2.337,-3.636,2.299],[2.5,1.474,-1.587,1.114],[3,1.198,-.875,.677],[3.5,1.080,-.542,.463],[4,1.022,-.363,.341],[5,.975,-.188,.214]];
+let cur=null,hist=LS('cd_hist')||[],set=LS('cd_set')||{},sb=null;
+
+function build(){$('#form').innerHTML=G.map(([t,fs])=>`<div class="card mb-3"><div class="card-body"><h3 class="h6 text-secondary">${t}</h3><div class="row g-2">${fs.map(([id,l,ty,d])=>`<div class="col-6 col-lg-4"><label class="form-label small mb-0" for="${id}">${l}</label>${ty[0]=='s'?`<select class="form-select" id="${id}">${ty.slice(2).split(',').map(o=>`<option>${o}</option>`).join('')}</select>`:`<input class="form-control" id="${id}" type="${ty=='n'?'number':ty=='d'?'date':'text'}" ${ty=='n'?'step="any" inputmode="decimal"':''} value="${d}">`}</div>`).join('')}</div></div></div>`).join('');run()}
+const getI=()=>Object.fromEntries(IDS.map(k=>[k,$('#'+k).value]));
+
+function ksOf(v,r){if(!(v>=2&&v<=5))throw'V1/V2 harus 2 sampai 5 (TRS-398 Tabel 9).';let i=0;while(i<4&&v>KS[i+1][0])i++;const a=KS[i],b=KS[i+1],t=(v-a[0])/(b[0]-a[0]),c=[1,2,3].map(k=>a[k]+t*(b[k]-a[k]));return{c,ks:c[0]+c[1]*r+c[2]*r*r}}
+function compute(I){const N=k=>parseFloat(I[k]),f={};
+f.kTP=(273.2+N('temp'))/(273.2+N('t0'))*N('p0')/N('press');
+f.kpol=(Math.abs(N('mp'))+Math.abs(N('mn')))/(2*Math.abs(N('m')));
+const v=N('v1')/N('v2'),r=N('m1')/N('m2'),s=ksOf(v,r);f.ks=s.ks;f.kelec=N('kelec');
+f.Mq=N('m')*f.kTP*f.kelec*f.kpol*f.ks;f.Dz=f.Mq*N('nd');
+const q=I.setup=='SAD'?N('pdd'):N('pdd')/100;f.Dmax=f.Dz/q;f.rate=f.Dmax/N('time');
+if(Object.values(f).some(x=>!isFinite(x)))throw'Lengkapi input untuk menghitung.';
+return{f,v,r,c:s.c,q}}
+const x=(n,d=4)=>Number(n).toFixed(d);
+function D(I,R){const f=R.f;return[
+['kTP','(273.2+T)/(273.2+T0) * P0/P',`(273.2+${I.temp})/(273.2+${I.t0}) * ${I.p0}/${I.press}`,x(f.kTP)],
+['kpol','(|M+|+|M-|)/(2|M|)',`(|${I.mp}|+|${I.mn}|)/(2*|${I.m}|)`,x(f.kpol)],
+['ks',`a0+a1(M1/M2)+a2(M1/M2)^2, V1/V2=${x(R.v,2)}`,`a=${R.c.map(c=>x(c,3)).join('; ')}; M1/M2=${x(R.r)}`,x(f.ks)],
+['kelec','dari sertifikat kalibrasi',I.kelec,x(f.kelec)],
+['M_corr','M * kTP * kelec * kpol * ks',`${I.m} * ${x(f.kTP)} * ${x(f.kelec)} * ${x(f.kpol)} * ${x(f.ks)}`,x(f.Mq)+' nC'],
+['Dw(zref)','M_corr * N_D,w * kQ (kQ=1)',`${x(f.Mq)} * ${I.nd}`,x(f.Dz)+' Gy'],
+['Dw(zmax)',I.setup=='SAD'?'Dw(zref)/TMR':'Dw(zref)/(PDD/100)',`${x(f.Dz)} / ${x(R.q)}`,x(f.Dmax)+' Gy'],
+['Laju dosis','Dw(zmax)/t',`${x(f.Dmax)} / ${I.time}`,x(f.rate)+' Gy/min']]}
+
+function run(){const w=$('#warn');try{const I=getI(),R=compute(I);cur={I,R};
+$('#rz').textContent=x(R.f.Dz)+' Gy';$('#rm').textContent=x(R.f.Dmax)+' Gy';$('#rr').textContent=x(R.f.rate)+' Gy/min';
+$('#det').innerHTML=D(I,R).map(r=>`<tr><td class="fw-semibold">${r[0]}</td><td>${r[1]}</td><td class="text-secondary">${r[2]}</td><td class="fw-bold text-nowrap">${r[3]}</td></tr>`).join('');
+w.className='small mt-2 text-warning';w.textContent=R.f.ks<1||R.f.ks>1.05?'Periksa ks: di luar rentang tipikal 1,000 sampai 1,050.':''}
+catch(e){cur=null;['rz','rm','rr'].forEach(k=>$('#'+k).textContent='-');$('#det').innerHTML='';w.className='small mt-2 text-secondary';w.textContent=typeof e=='string'?e:'Lengkapi input untuk menghitung.'}}
+document.addEventListener('input',e=>{if(e.target.closest('#form'))run()});
+
+function toast(m,bad){const t=$('#toast');t.innerHTML=`<div class="alert alert-${bad?'danger':'success'} shadow mb-0">${m}</div>`;setTimeout(()=>t.innerHTML='',4000)}
+function initSB(){sb=null;if(set.sburl&&set.sbkey&&window.supabase)sb=supabase.createClient(set.sburl,set.sbkey)}
+async function save(){if(!cur)return toast('Lengkapi input sebelum menyimpan.',1);
+const rec={id:Date.now(),ts:new Date().toISOString(),I:cur.I,R:cur.R};hist=[rec,...hist];LS('cd_hist',hist);let m='Tersimpan di perangkat.';
+if(sb){const{error}=await sb.from('measurements').insert({measured_on:rec.I.date||null,machine:rec.I.machine,chamber:(rec.I.cmodel+' '+rec.I.cser).trim(),data:rec});m=error?'Tersimpan di perangkat. Supabase gagal: '+error.message:'Tersimpan di perangkat dan Supabase.'}
+toast(m)}
+async function pull(){if(!sb)return toast('Isi dan simpan pengaturan Supabase dulu.',1);
+const{data,error}=await sb.from('measurements').select('id,data').order('created_at',{ascending:false});
+if(error)return toast(error.message,1);hist=data.map(r=>({...r.data,sid:r.id}));LS('cd_hist',hist);renderHist();toast('Riwayat dimuat.')}
+function renderHist(){$('#hist').innerHTML=hist.length?hist.map((h,i)=>`<tr><td>${h.I.date}</td><td>${h.I.machine}</td><td>${h.I.cmodel} ${h.I.cser}</td><td class="fw-bold">${x(h.R.f.Dz)}</td><td class="text-nowrap"><button class="btn btn-sm btn-outline-primary" onclick="openRec(${i})">Buka</button> <button class="btn btn-sm btn-outline-secondary" onclick="pdf(hist[${i}])">PDF</button> <button class="btn btn-sm btn-outline-danger" onclick="del(${i})">Hapus</button></td></tr>`).join(''):'<tr><td colspan="5" class="text-center text-secondary py-4">Belum ada pengukuran. Hitung dan simpan dari halaman Kalkulator.</td></tr>'}
+function openRec(i){Object.entries(hist[i].I).forEach(([k,v])=>{const el=$('#'+k);if(el)el.value=v});show('calc');run()}
+async function del(i){if(!confirm('Hapus pengukuran ini?'))return;const h=hist[i];if(sb&&h.sid)await sb.from('measurements').delete().eq('id',h.sid);hist.splice(i,1);LS('cd_hist',hist);renderHist()}
+
+function pdf(rec){if(!rec)return toast('Belum ada hasil untuk diekspor.',1);if(!window.jspdf)return toast('Pustaka PDF belum termuat (perlu online sekali).',1);
+const d=new jspdf.jsPDF();let y=16;const L=(t,b)=>{d.setFont('helvetica',b?'bold':'normal');d.setFontSize(b?11:9.5);d.splitTextToSize(String(t),180).forEach(s=>{if(y>284){d.addPage();y=16}d.text(s,14,y);y+=5.5})};
+L('CoDose Calculator - Laporan Dosis Absolut Co-60 (IAEA TRS-398)',1);L(`Operator: ${set.user||'-'} ${set.inst?'('+set.inst+')':''}`);y+=2;
+G.forEach(([t,fs])=>{L(t,1);fs.forEach(([id,l])=>L(`${l}: ${rec.I[id]||'-'}`));y+=2});
+L('Faktor koreksi dan detail perhitungan',1);D(rec.I,rec.R).forEach(r=>{L(`${r[0]} = ${r[1]}`);L(`   = ${r[2]} = ${r[3]}`)});y+=2;
+L('Hasil',1);L(`Dw(zref) = ${x(rec.R.f.Dz)} Gy | Dw(zmax) = ${x(rec.R.f.Dmax)} Gy | Laju dosis = ${x(rec.R.f.rate)} Gy/min`);y+=2;
+L('Alat bantu hitung; validasi dengan worksheet IAEA resmi dan verifikasi fisikawan medis sebelum dipakai klinis.');
+d.save(`CoDose_${rec.I.date||'laporan'}.pdf`)}
+
+function saveSet(){set={user:$('#s_user').value,inst:$('#s_inst').value,theme:$('#s_theme').value,sburl:$('#s_url').value.trim(),sbkey:$('#s_key').value.trim(),mail:$('#s_mail').value};LS('cd_set',set);theme();initSB();toast('Pengaturan tersimpan.')}
+async function login(){if(!sb)return toast('Simpan URL dan anon key dulu.',1);const{error}=await sb.auth.signInWithPassword({email:$('#s_mail').value,password:$('#s_pass').value});error?toast(error.message,1):toast('Berhasil masuk.')}
+const theme=()=>document.documentElement.setAttribute('data-bs-theme',set.theme||'light');
+
+const V=[['dash','Dashboard'],['calc','Kalkulator'],['hist','Riwayat'],['set','Pengaturan']];
+$('#nav').insertAdjacentHTML('beforeend',V.map(([k,l])=>`<a data-v="${k}" onclick="show('${k}')">${l}</a>`).join(''));
+function show(k){V.forEach(([v])=>$('#v-'+v).hidden=v!=k);document.querySelectorAll('.side a').forEach(a=>a.classList.toggle('on',a.dataset.v==k));
+if(k=='hist')renderHist();if(k=='dash'){const h=hist[0];$('#d-n').textContent=hist.length;$('#d-date').textContent=h?h.I.date:'-';$('#d-dz').textContent=h?x(h.R.f.Dz)+' Gy':'-'}
+if(k=='set')[['user','user'],['inst','inst'],['theme','theme'],['url','sburl'],['key','sbkey'],['mail','mail']].forEach(([i,s])=>{$('#s_'+i).value=set[s]||(i=='theme'?'light':'')});scrollTo(0,0)}
+theme();build();initSB();show('dash');
+if('serviceWorker' in navigator&&location.protocol.startsWith('http'))navigator.serviceWorker.register('sw.js').catch(()=>{});
+</script></body></html>
