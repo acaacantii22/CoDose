@@ -1,0 +1,22 @@
+.cd-splash{
+  --cd-bg:#F5F3EE; --cd-ink:#10302D; --cd-sub:#4F706B;
+  --cd-w:min(78vw,520px,95vh);
+  position:fixed; inset:0; z-index:9999; display:grid; place-items:center;
+  background:var(--cd-bg); color:var(--cd-ink); overflow:hidden;
+  transition:opacity .5s ease, visibility .5s;
+  font-family:"Nunito","Varela Round",ui-rounded,"SF Pro Rounded",system-ui,sans-serif;
+}
+.cd-splash[hidden]{display:none}
+.cd-splash.is-hidden{opacity:0; visibility:hidden; pointer-events:none}
+.cd-stage{width:var(--cd-w); display:flex; flex-direction:column; align-items:center; padding-bottom:env(safe-area-inset-bottom)}
+.cd-logo{display:block; width:100%; height:auto; overflow:visible}
+.cd-name{
+  display:inline-block; margin-top:calc(var(--cd-w)*.02);
+  font-weight:800; font-size:calc(var(--cd-w)*.19); line-height:1.05; letter-spacing:-.01em;
+  opacity:0; will-change:opacity,transform;
+}
+.cd-sub{
+  display:inline-block; margin-top:calc(var(--cd-w)*.025); white-space:nowrap;
+  font-weight:600; font-size:calc(var(--cd-w)*.05); line-height:1; text-transform:uppercase;
+  color:var(--cd-sub); opacity:0; will-change:opacity,transform;
+}

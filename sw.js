@@ -1,4 +1,4 @@
-const C='codose-v1',A=['./','index.html','manifest.json','icon-192.png','icon-512.png'];
+const C='codose-v3',A=['./','index.html','manifest.json','icon-192.png','icon-512.png','Animasi_Masuk/codose-splash/codose-splash/css/splash.css','Animasi_Masuk/codose-splash/codose-splash/js/splash.js'];
 self.addEventListener('install',e=>e.waitUntil(caches.open(C).then(c=>c.addAll(A)).then(()=>self.skipWaiting())));
 self.addEventListener('activate',e=>e.waitUntil(caches.keys().then(k=>Promise.all(k.filter(n=>n!==C).map(n=>caches.delete(n)))).then(()=>self.clients.claim())));
 self.addEventListener('fetch',e=>{
