@@ -1,4 +1,4 @@
-const C='codose-v11',A=['./','index.html','manifest.json','supabase-config.js','icon%20CDC.png','Animasi_Masuk/splash.css?v=3','Animasi_Masuk/splash.js?v=4'];
+const C='codose-v12',A=['./','index.html','manifest.json','supabase-config.js','icon.jpeg','Animasi_Masuk/splash.css?v=3','Animasi_Masuk/splash.js?v=4'];
 self.addEventListener('install',e=>e.waitUntil(caches.open(C).then(c=>c.addAll(A)).then(()=>self.skipWaiting())));
 self.addEventListener('activate',e=>e.waitUntil(caches.keys().then(k=>Promise.all(k.filter(n=>n!==C).map(n=>caches.delete(n)))).then(()=>self.clients.claim())));
 self.addEventListener('fetch',e=>{
