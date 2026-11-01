@@ -5,16 +5,16 @@
   if (!root) return;
   const $ = id => root.querySelector('#' + id);
   const svg = $('cd-logo'), world = $('cd-world'), cEl = $('cd-C'), o1 = $('cd-o1'), o2 = $('cd-o2'), sEl = $('cd-s'), eEl = $('cd-e'),
-        ballG = $('cd-ball'), shape = $('cd-shape'), dot = $('cd-dot'), stage = root.querySelector('.cd-stage'), sub = root.querySelector('.cd-sub');
+        ballG = $('cd-ball'), shape = $('cd-shape'), stage = root.querySelector('.cd-stage'), sub = root.querySelector('.cd-sub');
 
   const CFG = { G: 2400, H1: 30, H2: 9, cDur: .6, rotDur: .9, outDur: 1.1, s5Dur: 1.15, Z0: 2,
                 hold: +root.dataset.hold || 1500, autohide: root.dataset.autohide === 'true' };
   // Geometri (satuan SVG). Tebal huruf 22, tinggi kapital 126, jari-jari tengah C = 52, bukaan C ±50°.
-  // Celah bukaan = 2*52*sin50° - 22 = 57.7 ; diameter bola = 46 = 80% celah.
-  const RB = 23, RC = 41 - RB, YR = RC;
+  // Celah bukaan = 2*52*sin50° - 22 = 57.7 ; diameter bola = 50 = 87% celah.
+  const RB = 25, RC = 41 - RB, YR = RC;
   const XC0 = -53.7, XD0 = 60.7;                                       // komposisi "CD"
   const XC1 = -232.7, XO1 = -133.3, XD1 = -22.3, XO2 = 88.7, XS = 169.7, XE = 250.7;  // kata "CoDose"
-  const WORDW = 591.4, BALL = [130, 169, 255], D2R = Math.PI / 180;
+  const WORDW = 569.4, BALL = [130, 169, 255], D2R = Math.PI / 180;
 
   const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
   const lerp = (a, b, t) => a + (b - a) * t;
@@ -105,8 +105,6 @@
     ballG.setAttribute('transform', `translate(${f(x)} ${f(y + RB * (1 - e))}) scale(${f(1 + q)} ${f(1 - q)}) translate(0 ${f(-RB * (1 - e))})`);
     const dd = mk(OUT_B, OUT_D, e) + mk(ZERO, IN_D, ec); if (dd !== lastD) { shape.setAttribute('d', dd); lastD = dd; }
     shape.setAttribute('fill', `rgb(${BALL.map(c => Math.round(lerp(c, 255, e))).join(',')})`);
-    dot.setAttribute('transform', `rotate(${f(a)})`); dot.setAttribute('opacity', Math.max(0, 1 - e * 3));
-
     // Tahap 5: CD membuka & berkembang menjadi CoDose
     let lp = clamp((p - .1) / .6);
     put(o1, (xC + xD) / 2 - 5.8 * ep, 18, back(lp), lp * 3);
@@ -123,9 +121,11 @@
 
   /* lebar "calculator" disamakan dengan lebar kata "CoDose" lewat letter-spacing */
   function fit() {
-    const k = svg.offsetWidth / 660; sub.style.letterSpacing = '0'; sub.style.paddingLeft = '0';
-    const n = sub.textContent.length, ls = (WORDW * k - sub.offsetWidth) / (n - 1);
-    sub.style.letterSpacing = ls + 'px'; sub.style.paddingLeft = ls + 'px';
+    const k = svg.getBoundingClientRect().width / 660; sub.style.letterSpacing = '0'; sub.style.paddingLeft = '0';
+    const target = WORDW * k, natural = sub.offsetWidth;
+    sub.style.letterSpacing = '1px';
+    const spacingWidth = sub.offsetWidth - natural;
+    sub.style.letterSpacing = spacingWidth ? (target - natural) / spacingWidth + 'px' : '0';
     OFF = (18 * k + sub.offsetHeight) / 2;                         // agar kata + subtitle berada tepat di tengah layar
   }
 

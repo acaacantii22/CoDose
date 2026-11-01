@@ -22,4 +22,4 @@ codose-splash/
 4. Muat `<script src=".../splash.js" defer>` sebelum script app.
 5. Event: `codose:complete` (selesai + hold), `codose:hidden` (splash hilang). API: `CoDoseSplash.play()` / `.skip()`.
 
-Penyetelan: ukuran bola = `RB` di `splash.js` (kini 23 = 80% celah bukaan C 57,7); timing di objek `CFG`. `prefers-reduced-motion` langsung menampilkan hasil akhir.
+Penyetelan: ukuran bola = `RB` di `splash.js` (kini 25 = 87% celah bukaan C 57,7); timing di objek `CFG`. `prefers-reduced-motion` langsung menampilkan hasil akhir.

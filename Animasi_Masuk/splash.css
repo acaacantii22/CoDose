@@ -12,6 +12,6 @@
 .cd-logo{display:block; width:100%; height:auto; overflow:visible}
 .cd-sub{
   position:absolute; left:50%; top:calc(100% - var(--cd-w)*.045);
-  white-space:nowrap; font-weight:300; font-size:calc(var(--cd-w)*.052); line-height:1.1;
+  white-space:nowrap; font-weight:300; font-size:calc(var(--cd-w)*.09); line-height:1.1;
   opacity:0; transform:translateX(-50%); transform-origin:50% 50%; will-change:transform,opacity,filter;
 }
