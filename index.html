@@ -181,7 +181,8 @@ create policy own on measurements for all
 </script>
 <script src="Animasi_Masuk/splash.js?v=4" onerror="window.cdSplashAssetFailed=true;document.dispatchEvent(new Event('codose:splash-error'))"></script>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-config.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script>
 const $=s=>document.querySelector(s),LS=(k,v)=>{try{if(v===undefined)return JSON.parse(localStorage.getItem(k)||'null');localStorage.setItem(k,JSON.stringify(v))}catch(e){return null}};
@@ -231,7 +232,7 @@ document.addEventListener('input',e=>{if(e.target.closest('#form'))run()});
 
 const escapeHtml=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 function toast(m,bad){const t=$('#toast');t.innerHTML=`<div class="alert alert-${bad?'danger':'success'} shadow mb-0">${escapeHtml(m)}</div>`;setTimeout(()=>t.innerHTML='',4000)}
-function initSB(){sb=null;if(set.sburl&&set.sbkey&&window.supabase)sb=supabase.createClient(set.sburl,set.sbkey)}
+function initSB(){sb=window.supabaseClient||null;if(window.supabase&&set.sburl&&set.sbkey)sb=supabase.createClient(set.sburl,set.sbkey)}
 async function save(){if(!cur)return toast('Lengkapi input sebelum menyimpan.',1);
 const rec={id:Date.now(),ts:new Date().toISOString(),I:cur.I,R:cur.R};hist=[rec,...hist];LS('cd_hist',hist);let m='Tersimpan di perangkat.';
 if(sb)try{const{error}=await sb.from('measurements').insert({measured_on:rec.I.date||null,machine:rec.I.machine,chamber:(rec.I.cmodel+' '+rec.I.cser).trim(),data:rec});m=error?'Tersimpan di perangkat. Supabase gagal: '+error.message:'Tersimpan di perangkat dan Supabase.'}catch(e){m='Tersimpan di perangkat. Supabase gagal: '+e.message}
