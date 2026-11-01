@@ -124,8 +124,11 @@
     const k = svg.getBoundingClientRect().width / 660; sub.style.letterSpacing = '0'; sub.style.paddingLeft = '0';
     const target = WORDW * k, natural = sub.offsetWidth;
     sub.style.letterSpacing = '1px';
+    sub.style.paddingLeft = '1px';
     const spacingWidth = sub.offsetWidth - natural;
-    sub.style.letterSpacing = spacingWidth ? (target - natural) / spacingWidth + 'px' : '0';
+    const spacing = spacingWidth ? (target - natural) / spacingWidth : 0;
+    sub.style.letterSpacing = spacing + 'px';
+    sub.style.paddingLeft = spacing + 'px';
     OFF = (18 * k + sub.offsetHeight) / 2;                         // agar kata + subtitle berada tepat di tengah layar
   }
 
