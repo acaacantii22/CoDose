@@ -28,18 +28,15 @@ body{font-family:"DM Sans",sans-serif;background:var(--page);color:var(--ink);tr
 .nav-link-app{width:100%;border:0;background:transparent;text-align:left;font-family:inherit}
 .nav-link-app:hover,.nav-link-app.on{color:var(--accent-hover);background:var(--accent-soft)}
 .nav-mark{width:24px;height:24px;flex:none;display:grid;place-items:center;color:var(--accent)}
-.nav-mark svg,.connection-control svg{width:21px;height:21px;stroke:currentColor;fill:none;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round}
-.side-bottom{margin-top:auto;display:flex;align-items:center;justify-content:space-between;padding:.75rem .45rem .1rem;border-top:1px solid var(--line)}
+.nav-mark svg{width:21px;height:21px;stroke:currentColor;fill:none;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round}
+.side-bottom{margin-top:auto;display:flex;align-items:center;justify-content:flex-end;padding:.75rem .45rem .1rem;border-top:1px solid var(--line)}
 .mobile-nav{display:none}
 .theme-switch{position:relative;width:58px;height:32px;flex:none;padding:2px;border:1px solid var(--line);border-radius:999px;background:var(--accent-soft);cursor:pointer;transition:background-color .2s ease,border-color .2s ease}
 .theme-thumb{position:absolute;top:2px;left:2px;width:26px;height:26px;display:grid;place-items:center;border-radius:50%;background:var(--accent);color:#fff;box-shadow:0 1px 3px #102f472e;transform:translateX(0);transition:transform .22s cubic-bezier(.2,.8,.2,1),background-color .2s ease,color .2s ease}
 .theme-switch[aria-checked="false"] .theme-thumb{transform:translateX(26px)}
 .theme-switch[aria-checked="true"] .theme-thumb{color:#102231}
 .theme-thumb svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
-.theme-switch:focus-visible,.connection-control:focus-visible{outline:3px solid color-mix(in srgb,var(--accent) 45%,transparent);outline-offset:3px}
-.connection-control{width:36px;height:36px;display:grid;place-items:center;border:1px solid transparent;border-radius:8px;background:transparent;color:var(--muted);cursor:pointer;transition:background-color .18s ease,color .18s ease}
-.connection-control:hover{background:var(--accent-soft);color:var(--accent-hover)}
-.side-actions,.mobile-actions{display:flex;align-items:center;gap:.55rem}
+.theme-switch:focus-visible{outline:3px solid color-mix(in srgb,var(--accent) 45%,transparent);outline-offset:3px}
 .mobile-header{display:none}
 .main{flex:1;min-width:0;padding:1.6rem clamp(1rem,3vw,2.5rem);max-width:1600px;margin:0 auto}
 h1,h2,h3,.h1,.h2,.h3,.h4,.h5,.h6{font-family:Manrope,"DM Sans",sans-serif;color:var(--ink)}
@@ -52,16 +49,38 @@ h1,h2,h3,.h1,.h2,.h3,.h4,.h5,.h6{font-family:Manrope,"DM Sans",sans-serif;color:
 .table{--bs-table-color:var(--ink);--bs-table-bg:var(--surface);--bs-table-hover-bg:var(--surface-soft);--bs-table-hover-color:var(--ink)}
 .form-control,.form-select{border-color:var(--line)}
 .form-control:focus,.form-select:focus{border-color:var(--accent);box-shadow:0 0 0 .2rem color-mix(in srgb,var(--accent) 22%,transparent)}
-.connection-dialog{width:min(760px,calc(100vw - 2rem));max-height:calc(100dvh - 2rem);overflow:auto;border:1px solid var(--line);border-radius:10px;padding:0;background:var(--surface);color:var(--ink);box-shadow:0 24px 80px #06152255}
-.connection-dialog::backdrop{background:#07152188;backdrop-filter:blur(3px)}
-.dialog-head{display:flex;align-items:center;justify-content:space-between;padding:1rem 1.25rem;border-bottom:1px solid var(--line)}
-.dialog-body{padding:1.25rem}
+.auth-view{min-height:100dvh;display:grid;place-items:center;padding:1.25rem;background:var(--page)}
+.auth-view[hidden]{display:none}
+.auth-panel{width:min(100%,440px);padding:clamp(1.25rem,5vw,2rem);background:var(--surface);border:1px solid var(--line);border-radius:10px;box-shadow:var(--shadow)}
+.auth-brand{display:flex;align-items:center;gap:.65rem;margin-bottom:1.75rem;font:800 1rem Manrope,sans-serif}
+.auth-brand img{width:36px;height:36px;border-radius:9px}
+.auth-title{margin-bottom:.35rem;font-size:1.35rem}
+.auth-copy{margin-bottom:1.25rem;color:var(--muted);font-size:.92rem}
+.auth-form{display:grid;gap:.85rem}
+.auth-field{display:grid;gap:.35rem}
+.auth-label{font-size:.85rem;font-weight:600}
+.auth-password{position:relative}
+.auth-password .form-control{padding-right:5.25rem}
+.auth-password-toggle{position:absolute;top:50%;right:.65rem;transform:translateY(-50%);padding:0;border:0;background:none;color:var(--accent-hover);font-size:.78rem;font-weight:600}
+.auth-links{display:flex;justify-content:space-between;gap:.75rem;margin-top:1rem}
+.auth-link{padding:.2rem 0;border:0;background:none;color:var(--accent-hover);font-size:.86rem;font-weight:600;text-decoration:underline;text-underline-offset:3px}
+.auth-notice{margin:0 0 1rem;padding:.7rem .8rem;border:1px solid var(--line);border-radius:7px;background:var(--surface-soft);color:var(--ink);font-size:.88rem}
+.auth-notice[hidden]{display:none}
+.auth-notice.is-error{border-color:#d97b7b;color:#9e3434}
+[data-bs-theme=dark] .auth-notice.is-error{color:#ffb5b5}
+.logout-control{display:flex;align-items:center;gap:.45rem;padding:.45rem .55rem;border:0;border-radius:7px;background:transparent;color:var(--muted);font:600 .85rem "DM Sans",sans-serif;cursor:pointer}
+.logout-control:hover{background:var(--accent-soft);color:var(--accent-hover)}
+.logout-control svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.side-bottom .logout-control{margin-right:auto}
+.mobile-logout{display:none}
 #toast{position:fixed;right:1rem;bottom:1rem;z-index:20;max-width:90vw}
 @media(max-width:767px){
 .app{display:block;min-height:100dvh}
 .side{display:none}
 .mobile-header{position:sticky;top:0;z-index:10;display:flex;align-items:center;justify-content:space-between;min-height:calc(58px + env(safe-area-inset-top,0px));padding:env(safe-area-inset-top,0px) 1rem 0;background:var(--surface);border-bottom:1px solid var(--line)}
 .mobile-title{font:800 1rem Manrope,sans-serif;color:var(--ink)}
+.mobile-logout{display:grid;width:36px;height:36px;place-items:center;margin-left:auto;margin-right:.45rem;padding:0;border:0;border-radius:7px;background:transparent;color:var(--muted)}
+.mobile-logout svg{width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 .mobile-actions{gap:.65rem}
 .main{padding:.9rem .8rem calc(100px + env(safe-area-inset-bottom,0px))}
 .mobile-nav{position:fixed;z-index:15;right:0;bottom:0;left:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.15rem;padding:.45rem .5rem calc(.45rem + env(safe-area-inset-bottom,0px));background:var(--surface);border-top:1px solid var(--line);box-shadow:0 -8px 22px #244c6b0d}
@@ -94,9 +113,49 @@ h1,h2,h3,.h1,.h2,.h3,.h4,.h5,.h6{font-family:Manrope,"DM Sans",sans-serif;color:
 	</div>
 </div>
 <div id="app-shell" hidden>
-<header class="mobile-header"><span class="mobile-title">CoDose Calculator</span><div class="mobile-actions"><button class="connection-control" type="button" aria-label="Koneksi dan sinkronisasi" title="Koneksi dan sinkronisasi" onclick="openConnections()"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3v5m8-5v5M5 8h14v2a7 7 0 0 1-14 0V8Zm7 9v4m-3 0h6"/></svg></button><button class="theme-switch" type="button" role="switch" aria-label="Ubah tema" aria-checked="false" onclick="toggleTheme()"><span class="theme-thumb"></span></button></div></header>
+<section class="auth-view" id="auth-view" hidden>
+<div class="auth-panel">
+<div class="auth-brand"><img src="icon.jpeg" alt=""><span>CoDose Calculator</span></div>
+<p class="auth-notice" id="auth-notice" role="status" aria-live="polite" hidden></p>
+<section data-auth-screen="login" hidden>
+<h1 class="auth-title">Masuk</h1><p class="auth-copy">Masuk untuk mengakses dan menyimpan riwayat pengukuran Anda.</p>
+<form class="auth-form" id="login-form" novalidate>
+<div class="auth-field"><label class="auth-label" for="login-identifier">Username atau Email</label><input class="form-control" id="login-identifier" name="identifier" autocomplete="username" required></div>
+<div class="auth-field"><label class="auth-label" for="login-password">Password</label><div class="auth-password"><input class="form-control" id="login-password" name="password" type="password" autocomplete="current-password" required><button class="auth-password-toggle" type="button" onclick="togglePassword('login-password',this)">Tampilkan</button></div></div>
+<button class="btn btn-navy w-100 mt-1" type="submit">Masuk</button>
+</form><div class="auth-links"><button class="auth-link" type="button" onclick="showAuth('register')">Buat akun baru</button><button class="auth-link" type="button" onclick="showAuth('forgot')">Lupa password?</button></div>
+</section>
+<section data-auth-screen="register" hidden>
+<h1 class="auth-title">Buat akun baru</h1><p class="auth-copy">Verifikasi email diperlukan sebelum Anda dapat masuk.</p>
+<form class="auth-form" id="register-form" novalidate>
+<div class="auth-field"><label class="auth-label" for="register-username">Username</label><input class="form-control" id="register-username" autocomplete="username" minlength="3" maxlength="32" required></div>
+<div class="auth-field"><label class="auth-label" for="register-email">Email</label><input class="form-control" id="register-email" type="email" autocomplete="email" required></div>
+<div class="auth-field"><label class="auth-label" for="register-password">Password</label><div class="auth-password"><input class="form-control" id="register-password" type="password" autocomplete="new-password" minlength="8" oninput="updatePasswordStrength()" required><button class="auth-password-toggle" type="button" onclick="togglePassword('register-password',this)">Tampilkan</button></div><small class="text-secondary" id="password-strength">Gunakan minimal 8 karakter.</small></div>
+<div class="auth-field"><label class="auth-label" for="register-confirm">Konfirmasi Password</label><div class="auth-password"><input class="form-control" id="register-confirm" type="password" autocomplete="new-password" minlength="8" required><button class="auth-password-toggle" type="button" onclick="togglePassword('register-confirm',this)">Tampilkan</button></div></div>
+<button class="btn btn-navy w-100 mt-1" type="submit">Daftar</button>
+</form><div class="auth-links"><button class="auth-link" type="button" onclick="showAuth('login')">Kembali ke Login</button></div>
+</section>
+<section data-auth-screen="forgot" hidden>
+<h1 class="auth-title">Lupa password</h1><p class="auth-copy">Kami akan mengirim tautan pemulihan ke email akun Anda.</p>
+<form class="auth-form" id="forgot-form" novalidate>
+<div class="auth-field"><label class="auth-label" for="forgot-email">Email</label><input class="form-control" id="forgot-email" type="email" autocomplete="email" required></div>
+<button class="btn btn-navy w-100 mt-1" type="submit">Kirim Verifikasi</button>
+</form><div class="auth-links"><button class="auth-link" type="button" onclick="showAuth('login')">Kembali ke Login</button></div>
+</section>
+<section data-auth-screen="reset" hidden>
+<h1 class="auth-title">Buat password baru</h1><p class="auth-copy">Tautan email sudah diverifikasi. Masukkan password baru Anda.</p>
+<form class="auth-form" id="reset-form" novalidate>
+<div class="auth-field"><label class="auth-label" for="reset-email">Email</label><input class="form-control" id="reset-email" type="email" readonly></div>
+<div class="auth-field"><label class="auth-label" for="reset-password">Password Baru</label><div class="auth-password"><input class="form-control" id="reset-password" type="password" autocomplete="new-password" minlength="8" required><button class="auth-password-toggle" type="button" onclick="togglePassword('reset-password',this)">Tampilkan</button></div></div>
+<div class="auth-field"><label class="auth-label" for="reset-confirm">Konfirmasi Password Baru</label><div class="auth-password"><input class="form-control" id="reset-confirm" type="password" autocomplete="new-password" minlength="8" required><button class="auth-password-toggle" type="button" onclick="togglePassword('reset-confirm',this)">Tampilkan</button></div></div>
+<button class="btn btn-navy w-100 mt-1" type="submit">Simpan Password Baru</button>
+</form>
+</section>
+</div></section>
+<div id="workspace" hidden>
+<header class="mobile-header"><span class="mobile-title">CoDose Calculator</span><button class="mobile-logout" type="button" aria-label="Keluar" title="Keluar" onclick="logout()"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 17l5-5-5-5m5 5H3m9-9h7a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-7"/></svg></button><button class="theme-switch" type="button" role="switch" aria-label="Ubah tema" aria-checked="false" onclick="toggleTheme()"><span class="theme-thumb"></span></button></header>
 <div class="app">
-<aside class="side"><div class="brand"><img src="icon.jpeg" alt=""><span>CoDose</span></div><nav id="nav" aria-label="Navigasi utama"></nav><div class="side-bottom"><button class="connection-control" type="button" aria-label="Koneksi dan sinkronisasi" title="Koneksi dan sinkronisasi" onclick="openConnections()"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3v5m8-5v5M5 8h14v2a7 7 0 0 1-14 0V8Zm7 9v4m-3 0h6"/></svg></button><button class="theme-switch" type="button" role="switch" aria-label="Ubah tema" aria-checked="false" onclick="toggleTheme()"><span class="theme-thumb"></span></button></div></aside>
+<aside class="side"><div class="brand"><img src="icon.jpeg" alt=""><span>CoDose</span></div><nav id="nav" aria-label="Navigasi utama"></nav><div class="side-bottom"><button class="logout-control" type="button" onclick="logout()"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 17l5-5-5-5m5 5H3m9-9h7a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-7"/></svg><span>Keluar</span></button><button class="theme-switch" type="button" role="switch" aria-label="Ubah tema" aria-checked="false" onclick="toggleTheme()"><span class="theme-thumb"></span></button></div></aside>
 <nav class="mobile-nav" id="mobile-nav" aria-label="Navigasi utama"></nav>
 <main class="main">
 
@@ -137,33 +196,9 @@ h1,h2,h3,.h1,.h2,.h3,.h4,.h5,.h6{font-family:Manrope,"DM Sans",sans-serif;color:
 <thead><tr><th>Tanggal</th><th>Mesin</th><th>Chamber</th><th>Dw(zref) Gy</th><th></th></tr></thead><tbody id="hist"></tbody></table></div></div>
 </section>
 
-<dialog class="connection-dialog" id="connections">
-<div class="dialog-head"><h2 class="h5 mb-0">Koneksi dan profil</h2><button class="btn btn-sm btn-outline-secondary" type="button" aria-label="Tutup" onclick="closeConnections()">Tutup</button></div>
-<div class="dialog-body"><div class="row g-3"><div class="col-lg-6"><div class="card"><div class="card-body"><h3 class="h6">Pengguna</h3>
-<label class="form-label small mb-0">Nama pengguna</label><input class="form-control mb-2" id="s_user">
-<label class="form-label small mb-0">Institusi</label><input class="form-control mb-2" id="s_inst">
-<h3 class="h6">Supabase</h3>
-<label class="form-label small mb-0">Project URL</label><input class="form-control mb-2" id="s_url" placeholder="https://xxxx.supabase.co">
-<label class="form-label small mb-0">Anon key</label><input class="form-control mb-2" id="s_key">
-<label class="form-label small mb-0">Email</label><input class="form-control mb-2" id="s_mail" type="email">
-<label class="form-label small mb-0">Password</label><input class="form-control mb-3" id="s_pass" type="password" autocomplete="current-password">
-<div class="d-flex flex-wrap gap-2"><button class="btn btn-navy" onclick="saveSet()">Simpan pengaturan</button><button class="btn btn-outline-secondary" onclick="login()">Masuk</button><button class="btn btn-outline-secondary" onclick="pull()">Muat dari Supabase</button></div>
-</div></div></div>
-<div class="col-lg-6"><div class="card mb-3"><div class="card-body"><h3 class="h6">Informasi protokol</h3>
-<p class="small mb-1">IAEA TRS-398, Co-60 (kualitas berkas Q = Q<sub>0</sub>, k<sub>Q</sub> = 1). k<sub>s</sub> memakai metode dua tegangan untuk radiasi kontinu (TRS-398 Tabel 9), dengan interpolasi linear untuk V<sub>1</sub>/V<sub>2</sub> antar baris tabel. Koefisien perlu Anda cocokkan dengan dokumen TRS-398 Anda.</p>
-<p class="small mb-0">CoDose Calculator v1.0, aplikasi pribadi. Bekerja offline setelah dibuka sekali saat online.</p></div></div>
-<div class="card"><div class="card-body"><h3 class="h6">SQL tabel Supabase</h3>
-<pre class="small mb-0" style="white-space:pre-wrap">create table measurements(
- id bigint generated always as identity primary key,
- user_id uuid default auth.uid(),
- measured_on date, machine text, chamber text,
- data jsonb, created_at timestamptz default now());
-alter table measurements enable row level security;
-create policy own on measurements for all
- using (user_id = auth.uid()) with check (user_id = auth.uid());</pre></div></div></div></div>
-</div></div></dialog>
 </main></div>
 <div id="toast"></div>
+</div>
 </div>
 
 <script>
@@ -198,7 +233,10 @@ const G=[
 ['Catatan',[['note','Catatan pengukuran','t','']]]];
 const IDS=G.flatMap(x=>x[1].map(f=>f[0]));
 const KS=[[2,2.337,-3.636,2.299],[2.5,1.474,-1.587,1.114],[3,1.198,-.875,.677],[3.5,1.080,-.542,.463],[4,1.022,-.363,.341],[5,.975,-.188,.214]];
-let cur=null,hist=LS('cd_hist')||[],set=LS('cd_set')||{},sb=null;
+let themeMode=LS('cd_theme')||(LS('cd_set')||{}).theme||'light';
+LS('cd_theme',themeMode);
+try{localStorage.removeItem('cd_set')}catch(e){}
+let cur=null,hist=[],sb=null,currentSession=null,currentUser=null,recoverySession=null,isSaving=false;
 
 function build(){$('#form').innerHTML=G.map(([t,fs])=>`<div class="card mb-3"><div class="card-body"><h3 class="h6 text-secondary">${t}</h3><div class="row g-2">${fs.map(([id,l,ty,d])=>`<div class="col-6 col-lg-4"><label class="form-label small mb-0" for="${id}">${l}</label>${ty[0]=='s'?`<select class="form-select" id="${id}">${ty.slice(2).split(',').map(o=>`<option>${o}</option>`).join('')}</select>`:`<input class="form-control" id="${id}" type="${ty=='n'?'number':ty=='d'?'date':'text'}" ${ty=='n'?'step="any" inputmode="decimal"':''} value="${d}">`}</div>`).join('')}</div></div></div>`).join('');run()}
 const getI=()=>Object.fromEntries(IDS.map(k=>[k,$('#'+k).value]));
@@ -232,39 +270,53 @@ document.addEventListener('input',e=>{if(e.target.closest('#form'))run()});
 
 const escapeHtml=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 function toast(m,bad){const t=$('#toast');t.innerHTML=`<div class="alert alert-${bad?'danger':'success'} shadow mb-0">${escapeHtml(m)}</div>`;setTimeout(()=>t.innerHTML='',4000)}
-function initSB(){sb=window.supabaseClient||null;if(window.supabase&&set.sburl&&set.sbkey)sb=supabase.createClient(set.sburl,set.sbkey)}
-async function save(){if(!cur)return toast('Lengkapi input sebelum menyimpan.',1);
-const rec={id:Date.now(),ts:new Date().toISOString(),I:cur.I,R:cur.R};hist=[rec,...hist];LS('cd_hist',hist);let m='Tersimpan di perangkat.';
-if(sb)try{const{error}=await sb.from('measurements').insert({measured_on:rec.I.date||null,machine:rec.I.machine,chamber:(rec.I.cmodel+' '+rec.I.cser).trim(),data:rec});m=error?'Tersimpan di perangkat. Supabase gagal: '+error.message:'Tersimpan di perangkat dan Supabase.'}catch(e){m='Tersimpan di perangkat. Supabase gagal: '+e.message}
-toast(m)}
-async function pull(){if(!sb)return toast('Isi dan simpan pengaturan Supabase dulu.',1);
-try{const{data,error}=await sb.from('measurements').select('id,data').order('created_at',{ascending:false});
-if(error)return toast(error.message,1);hist=data.map(r=>({...r.data,sid:r.id}));LS('cd_hist',hist);renderHist();toast('Riwayat dimuat.')}catch(e){toast('Gagal memuat dari Supabase: '+e.message,1)}}
+function initSB(){sb=window.supabaseClient||null}
+const updateDashboard=()=>{const h=hist[0];$('#d-n').textContent=hist.length;$('#d-date').textContent=h?h.I.date:'-';$('#d-dz').textContent=h?x(h.R.f.Dz)+' Gy':'-'};
+async function save(){if(!cur)return toast('Lengkapi input sebelum menyimpan.',1);if(!sb||!currentUser)return toast('Masuk terlebih dahulu untuk menyimpan riwayat.',1);if(isSaving)return;isSaving=true;
+const rec={ts:new Date().toISOString(),I:cur.I,R:cur.R};
+try{const{data,error}=await sb.from('measurement_history').insert({user_id:currentUser.id,measured_on:rec.I.date||null,machine:rec.I.machine||'Co-60',chamber:(rec.I.cmodel+' '+rec.I.cser).trim(),data:rec}).select('id').single();if(error)return toast('Riwayat gagal disimpan: '+error.message,1);hist=[{...rec,sid:data.id},...hist];renderHist();updateDashboard();toast('Riwayat tersimpan di Supabase.')}catch(e){toast('Riwayat gagal disimpan: '+e.message,1)}finally{isSaving=false}}
+async function pull(silent=false){if(!sb||!currentUser)return false;
+try{const{data,error}=await sb.from('measurement_history').select('id,user_id,measured_on,machine,chamber,data,created_at').eq('user_id',currentUser.id).order('created_at',{ascending:false});
+if(error){toast('Riwayat gagal dimuat: '+error.message,1);return false}hist=data.map(r=>({...r.data,ts:r.data?.ts||r.created_at,I:{...r.data?.I,date:r.data?.I?.date||r.measured_on,machine:r.data?.I?.machine||r.machine,cmodel:r.data?.I?.cmodel||r.chamber},sid:r.id}));renderHist();updateDashboard();if(!silent)toast('Riwayat dimuat dari Supabase.');return true}catch(e){toast('Riwayat gagal dimuat: '+e.message,1);return false}}
 function renderHist(){$('#hist').innerHTML=hist.length?hist.map((h,i)=>`<tr><td>${escapeHtml(h.I.date)}</td><td>${escapeHtml(h.I.machine)}</td><td>${escapeHtml(h.I.cmodel)} ${escapeHtml(h.I.cser)}</td><td class="fw-bold">${escapeHtml(x(h.R.f.Dz))}</td><td class="text-nowrap"><button class="btn btn-sm btn-outline-primary" onclick="openRec(${i})">Buka</button> <button class="btn btn-sm btn-outline-secondary" onclick="pdf(hist[${i}])">PDF</button> <button class="btn btn-sm btn-outline-danger" onclick="del(${i})">Hapus</button></td></tr>`).join(''):'<tr><td colspan="5" class="text-center text-secondary py-4">Belum ada pengukuran. Hitung dan simpan dari halaman Kalkulator.</td></tr>'}
 function openRec(i){Object.entries(hist[i].I).forEach(([k,v])=>{const el=$('#'+k);if(el)el.value=v});show('calc');run()}
-async function del(i){if(!confirm('Hapus pengukuran ini?'))return;const h=hist[i];if(sb&&h.sid)try{const{error}=await sb.from('measurements').delete().eq('id',h.sid);if(error)return toast('Gagal menghapus dari Supabase: '+error.message,1)}catch(e){return toast('Gagal menghapus dari Supabase: '+e.message,1)}hist.splice(i,1);LS('cd_hist',hist);renderHist();toast('Pengukuran dihapus.')}
+async function del(i){if(!confirm('Hapus pengukuran ini?'))return;const h=hist[i];if(!sb||!currentUser||!h.sid)return toast('Riwayat tidak dapat dihapus tanpa sesi aktif.',1);try{const{error}=await sb.from('measurement_history').delete().eq('id',h.sid).eq('user_id',currentUser.id);if(error)return toast('Gagal menghapus dari Supabase: '+error.message,1);hist.splice(i,1);renderHist();updateDashboard();toast('Pengukuran dihapus.')}catch(e){toast('Gagal menghapus dari Supabase: '+e.message,1)}}
 
 function pdf(rec){if(!rec)return toast('Belum ada hasil untuk diekspor.',1);if(!window.jspdf)return toast('Pustaka PDF belum termuat (perlu online sekali).',1);
 const d=new jspdf.jsPDF();let y=16;const L=(t,b)=>{d.setFont('helvetica',b?'bold':'normal');d.setFontSize(b?11:9.5);d.splitTextToSize(String(t),180).forEach(s=>{if(y>284){d.addPage();y=16}d.text(s,14,y);y+=5.5})};
-L('CoDose Calculator - Laporan Dosis Absolut Co-60 (IAEA TRS-398)',1);L(`Operator: ${set.user||'-'} ${set.inst?'('+set.inst+')':''}`);y+=2;
+L('CoDose Calculator - Laporan Dosis Absolut Co-60 (IAEA TRS-398)',1);y+=2;
 G.forEach(([t,fs])=>{L(t,1);fs.forEach(([id,l])=>L(`${l}: ${rec.I[id]||'-'}`));y+=2});
 L('Faktor koreksi dan detail perhitungan',1);D(rec.I,rec.R).forEach(r=>{L(`${r[0]} = ${r[1]}`);L(`   = ${r[2]} = ${r[3]}`)});y+=2;
 L('Hasil',1);L(`Dw(zref) = ${x(rec.R.f.Dz)} Gy | Dw(zmax) = ${x(rec.R.f.Dmax)} Gy | Laju dosis = ${x(rec.R.f.rate)} Gy/min`);y+=2;
 L('Alat bantu hitung; validasi dengan worksheet IAEA resmi dan verifikasi fisikawan medis sebelum dipakai klinis.');
 d.save(`CoDose_${rec.I.date||'laporan'}.pdf`)}
 
-function saveSet(){set={...set,user:$('#s_user').value,inst:$('#s_inst').value,sburl:$('#s_url').value.trim(),sbkey:$('#s_key').value.trim(),mail:$('#s_mail').value};LS('cd_set',set);initSB();closeConnections();toast('Pengaturan tersimpan.')}
-async function login(){if(!sb)return toast('Simpan URL dan anon key dulu.',1);try{const{error}=await sb.auth.signInWithPassword({email:$('#s_mail').value,password:$('#s_pass').value});error?toast(error.message,1):toast('Berhasil masuk.')}catch(e){toast('Login gagal: '+e.message,1)}}
-const theme=()=>{const mode=set.theme==='dark'?'dark':'light';document.documentElement.setAttribute('data-bs-theme',mode);document.querySelectorAll('.theme-switch').forEach(b=>{b.setAttribute('aria-checked',String(mode==='dark'));b.setAttribute('aria-label',mode==='light'?'Light Mode':'Dark Mode');b.querySelector('.theme-thumb').innerHTML=mode==='light'?'<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M4.93 4.93l1.42 1.42m11.3 11.3 1.42 1.42M2 12h2m16 0h2M4.93 19.07l1.42-1.42m11.3-11.3 1.42-1.42"/></svg>':'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.2 15.4A8.5 8.5 0 0 1 8.6 3.8 8.6 8.6 0 1 0 20.2 15.4Z"/></svg>'})};
-function toggleTheme(){set.theme=set.theme==='dark'?'light':'dark';LS('cd_set',set);theme()}
-const openConnections=()=>{[['user','user'],['inst','inst'],['url','sburl'],['key','sbkey'],['mail','mail']].forEach(([i,s])=>{$('#s_'+i).value=set[s]||''});$('#connections').showModal()};
-const closeConnections=()=>$('#connections').close();
+const theme=()=>{const mode=themeMode==='dark'?'dark':'light';document.documentElement.setAttribute('data-bs-theme',mode);document.querySelectorAll('.theme-switch').forEach(b=>{b.setAttribute('aria-checked',String(mode==='dark'));b.setAttribute('aria-label',mode==='light'?'Light Mode':'Dark Mode');b.querySelector('.theme-thumb').innerHTML=mode==='light'?'<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M4.93 4.93l1.42 1.42m11.3 11.3 1.42 1.42M2 12h2m16 0h2M4.93 19.07l1.42-1.42m11.3-11.3 1.42-1.42"/></svg>':'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.2 15.4A8.5 8.5 0 0 1 8.6 3.8 8.6 8.6 0 1 0 20.2 15.4Z"/></svg>'})};
+function toggleTheme(){themeMode=themeMode==='dark'?'light':'dark';LS('cd_theme',themeMode);theme()}
 
 const V=[['dash','Dashboard','<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="8" height="8" rx="1.5"/><rect x="13" y="3" width="8" height="5" rx="1.5"/><rect x="13" y="10" width="8" height="11" rx="1.5"/><rect x="3" y="13" width="8" height="8" rx="1.5"/></svg>'],['calc','Kalkulator','<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="2.5" width="16" height="19" rx="2.5"/><path d="M8 7h8M8 12h.01M12 12h.01M16 12h.01M8 16h.01M12 16h.01M16 16h.01"/></svg>'],['hist','Riwayat','<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 2.64-6.36L3 8"/><path d="M3 3v5h5m4-1v5l3 2"/></svg>']];
 const navMarkup=()=>V.map(([k,l,icon])=>`<button type="button" class="nav-link-app" data-v="${k}" onclick="show('${k}')"><span class="nav-mark">${icon}</span><span>${l}</span></button>`).join('');
 $('#nav').innerHTML=navMarkup();$('#mobile-nav').innerHTML=navMarkup();
 function show(k){V.forEach(([v])=>$('#v-'+v).hidden=v!==k);document.querySelectorAll('.nav-link-app').forEach(a=>{const active=a.dataset.v===k;a.classList.toggle('on',active);if(active)a.setAttribute('aria-current','page');else a.removeAttribute('aria-current')});
-if(k==='hist')renderHist();if(k==='dash'){const h=hist[0];$('#d-n').textContent=hist.length;$('#d-date').textContent=h?h.I.date:'-';$('#d-dz').textContent=h?x(h.R.f.Dz)+' Gy':'-'}scrollTo(0,0)}
-theme();build();initSB();show('dash');
+if(k==='hist'){renderHist();pull()}if(k==='dash')updateDashboard();scrollTo(0,0)}
+function showAuth(screen='login',message='',isError=false){$('#workspace').hidden=true;$('#auth-view').hidden=false;document.querySelectorAll('[data-auth-screen]').forEach(view=>view.hidden=view.dataset.authScreen!==screen);const notice=$('#auth-notice');notice.textContent=message;notice.hidden=!message;notice.classList.toggle('is-error',isError);if(screen==='reset')$('#reset-email').value=recoverySession?.user?.email||''}
+function togglePassword(id,button){const input=$('#'+id),show=input.type==='password';input.type=show?'text':'password';button.textContent=show?'Sembunyikan':'Tampilkan'}
+function validPassword(password){return password.length>=8&&[/[a-z]/.test(password),/[A-Z]/.test(password),/[0-9]/.test(password),/[^A-Za-z0-9]/.test(password)].filter(Boolean).length>=2}
+function updatePasswordStrength(){const password=$('#register-password').value,label=$('#password-strength');label.textContent=!password?'Gunakan minimal 8 karakter.':validPassword(password)?'Kekuatan password cukup.':'Gunakan minimal 8 karakter dan kombinasikan huruf, angka, atau simbol.'}
+const setFormBusy=(form,busy)=>form.querySelectorAll('button[type="submit"]').forEach(button=>button.disabled=busy);
+async function enterWorkspace(session){if(!session?.user)return showAuth('login','Sesi tidak valid. Silakan masuk kembali.',true);const verified=session.user.email_confirmed_at||session.user.confirmed_at;if(!verified){await sb.auth.signOut();return showAuth('login','Verifikasi email sebelum masuk.',true)}currentSession=session;currentUser=session.user;recoverySession=null;hist=[];$('#auth-view').hidden=true;$('#workspace').hidden=false;show('dash');await pull(true);show('dash')}
+async function initializeAuth(){if(!sb)return showAuth('login','Supabase belum tersedia. Muat ulang aplikasi saat online.',true);const{data,error}=await sb.auth.getSession();if(recoverySession)return;if(error){showAuth('login','Sesi tidak dapat diperiksa. Silakan masuk kembali.',true);return}if(data.session){await enterWorkspace(data.session);return}showAuth('login')}
+async function logout(){if(!sb)return;const{error}=await sb.auth.signOut();if(error)return toast('Gagal keluar: '+error.message,1);currentSession=null;currentUser=null;hist=[];renderHist();showAuth('login','Anda telah keluar.')}
+
+$('#login-form').addEventListener('submit',async event=>{event.preventDefault();const form=event.currentTarget,identifier=$('#login-identifier').value.trim(),password=$('#login-password').value;setFormBusy(form,true);try{if(!identifier||!password)throw new Error('Masukkan username/email dan password.');if(identifier.includes('@')){const{data,error}=await sb.auth.signInWithPassword({email:identifier,password});if(error||!data.session)throw new Error('Username/email atau password salah, atau email belum diverifikasi.');await enterWorkspace(data.session)}else{const{data,error}=await sb.functions.invoke('login-by-username',{body:{username:identifier,password}});if(error){const unavailable=error.name==='FunctionsFetchError'||error.context?.status===404||/Failed to send|CORS|not deployed/i.test(error.message||'');throw new Error(unavailable?'Login dengan username belum tersedia. Sementara itu, masuk menggunakan email.':'Username atau password salah, atau email belum diverifikasi.')}if(!data?.access_token||!data?.refresh_token)throw new Error('Username atau password salah, atau email belum diverifikasi.');const{data:sessionData,error:sessionError}=await sb.auth.setSession({access_token:data.access_token,refresh_token:data.refresh_token});if(sessionError||!sessionData.session)throw new Error('Sesi login tidak dapat dibuat.');await enterWorkspace(sessionData.session)}}catch(e){showAuth('login',e.message||'Login gagal. Periksa koneksi dan kredensial.',true)}finally{setFormBusy(form,false)}});
+
+$('#register-form').addEventListener('submit',async event=>{event.preventDefault();const form=event.currentTarget,username=$('#register-username').value.trim(),email=$('#register-email').value.trim(),password=$('#register-password').value,confirmPassword=$('#register-confirm').value;setFormBusy(form,true);try{if(!username||!email||!password||!confirmPassword)throw new Error('Semua kolom wajib diisi.');if(!/^[A-Za-z0-9._-]{3,32}$/.test(username))throw new Error('Username harus 3–32 karakter: huruf, angka, titik, garis bawah, atau tanda hubung.');if(!$('#register-email').validity.valid)throw new Error('Format email tidak valid.');if(!validPassword(password))throw new Error('Password minimal 8 karakter dan memakai sedikitnya dua jenis karakter.');if(password!==confirmPassword)throw new Error('Password dan konfirmasi password tidak cocok.');const{data,error}=await sb.auth.signUp({email,password,options:{data:{username},emailRedirectTo:new URL('./index.html',location.href).href}});if(error){const duplicate=error.message?.includes('profiles_username_normalized_key');throw new Error(duplicate?'Username sudah digunakan.':'Pendaftaran gagal. Periksa email/username atau coba masuk.')}if(data.user?.identities?.length===0)throw new Error('Email sudah terdaftar. Silakan masuk atau gunakan Lupa Password.');if(data.session){await sb.auth.signOut();throw new Error('Supabase belum mewajibkan verifikasi email. Aktifkan Email Confirmations sebelum akun digunakan.')}form.reset();updatePasswordStrength();showAuth('login','Pendaftaran diterima. Periksa email untuk memverifikasi akun sebelum masuk.')}catch(e){showAuth('register',e.message||'Pendaftaran gagal.',true)}finally{setFormBusy(form,false)}});
+
+$('#forgot-form').addEventListener('submit',async event=>{event.preventDefault();const form=event.currentTarget,email=$('#forgot-email').value.trim();setFormBusy(form,true);try{if(!email||!$('#forgot-email').validity.valid)throw new Error('Masukkan alamat email yang valid.');const{error}=await sb.auth.resetPasswordForEmail(email,{redirectTo:new URL('./index.html',location.href).href});if(error)throw error;showAuth('forgot','Jika email terdaftar, tautan pemulihan telah dikirim.')}catch(e){showAuth('forgot','Permintaan pemulihan gagal dikirim. Periksa email dan pengaturan Supabase.',true)}finally{setFormBusy(form,false)}});
+
+$('#reset-form').addEventListener('submit',async event=>{event.preventDefault();const form=event.currentTarget,password=$('#reset-password').value,confirmPassword=$('#reset-confirm').value;setFormBusy(form,true);try{if(!recoverySession||!currentSession)throw new Error('Buka tautan pemulihan dari email sebelum mengatur password.');if(!validPassword(password))throw new Error('Password minimal 8 karakter dan memakai sedikitnya dua jenis karakter.');if(password!==confirmPassword)throw new Error('Password baru dan konfirmasi tidak cocok.');const{error}=await sb.auth.updateUser({password});if(error)throw error;await sb.auth.signOut();currentSession=null;currentUser=null;recoverySession=null;showAuth('login','Password berhasil diubah. Silakan masuk dengan password baru.')}catch(e){showAuth('reset',e.message||'Password tidak dapat diubah.',true)}finally{setFormBusy(form,false)}});
+
+sb?.auth.onAuthStateChange((event,session)=>{if(event==='PASSWORD_RECOVERY'&&session){recoverySession=session;currentSession=session;showAuth('reset')}else if(event==='SIGNED_OUT'){currentSession=null;currentUser=null;hist=[];showAuth('login')}});
+theme();build();initSB();initializeAuth();
 if('serviceWorker' in navigator&&location.protocol.startsWith('http'))navigator.serviceWorker.register('sw.js').catch(()=>{});
 </script></body></html>
