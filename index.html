@@ -57,6 +57,9 @@ h1,h2,h3,.h1,.h2,.h3,.h4,.h5,.h6{font-family:Manrope,"DM Sans",sans-serif;color:
 .auth-title{margin-bottom:.35rem;font-size:1.35rem}
 .auth-copy{margin-bottom:1.25rem;color:var(--muted);font-size:.92rem}
 .auth-form{display:grid;gap:.85rem}
+.remember-login{display:flex;align-items:center;gap:.5rem;margin-top:-.25rem}
+.remember-login .form-check-input{margin:0;flex:none}
+.remember-login .form-check-label{color:var(--muted);font-size:.85rem;cursor:pointer}
 .auth-field{display:grid;gap:.35rem}
 .auth-label{font-size:.85rem;font-weight:600}
 .auth-password{position:relative}
@@ -122,6 +125,7 @@ h1,h2,h3,.h1,.h2,.h3,.h4,.h5,.h6{font-family:Manrope,"DM Sans",sans-serif;color:
 <form class="auth-form" id="login-form" novalidate>
 <div class="auth-field"><label class="auth-label" for="login-identifier">Username atau Email</label><input class="form-control" id="login-identifier" name="identifier" autocomplete="username" required></div>
 <div class="auth-field"><label class="auth-label" for="login-password">Password</label><div class="auth-password"><input class="form-control" id="login-password" name="password" type="password" autocomplete="current-password" required><button class="auth-password-toggle" type="button" onclick="togglePassword('login-password',this)">Tampilkan</button></div></div>
+<div class="remember-login"><input class="form-check-input" id="remember-login" type="checkbox"><label class="form-check-label" for="remember-login">Ingat saya di perangkat ini</label></div>
 <button class="btn btn-navy w-100 mt-1" type="submit">Masuk</button>
 </form><div class="auth-links"><button class="auth-link" type="button" onclick="showAuth('register')">Buat akun baru</button><button class="auth-link" type="button" onclick="showAuth('forgot')">Lupa password?</button></div>
 </section>
@@ -238,6 +242,12 @@ let themeMode=LS('cd_theme')||(LS('cd_set')||{}).theme||'light';
 LS('cd_theme',themeMode);
 try{localStorage.removeItem('cd_set')}catch(e){}
 let cur=null,hist=[],sb=null,currentSession=null,currentUser=null,recoverySession=null,isSaving=false,historyStatus='idle',historyError='',historyRequest=null,historyRequestUserId=null;
+const REMEMBERED_LOGIN_KEY='codose_remembered_login';
+
+function initRememberLogin(){const input=$('#login-identifier'),checkbox=$('#remember-login');try{const identifier=localStorage.getItem(REMEMBERED_LOGIN_KEY);if(identifier){input.value=identifier;checkbox.checked=true}}catch(e){toast('Email login yang diingat tidak dapat dibaca: '+e.message,1)}
+checkbox.addEventListener('change',()=>{if(!checkbox.checked){try{localStorage.removeItem(REMEMBERED_LOGIN_KEY)}catch(e){toast('Email login yang diingat tidak dapat dihapus: '+e.message,1)}}else if(input.value.trim()){storeRememberedLogin(input.value.trim())}});
+input.addEventListener('input',()=>{if(checkbox.checked&&input.value.trim())storeRememberedLogin(input.value.trim())})}
+function storeRememberedLogin(identifier){try{localStorage.setItem(REMEMBERED_LOGIN_KEY,identifier)}catch(e){toast('Email login tidak dapat diingat di perangkat ini: '+e.message,1)}}
 
 function build(){$('#form').innerHTML=G.map(([t,fs])=>`<div class="card mb-3"><div class="card-body"><h3 class="h6 text-secondary">${t}</h3><div class="row g-2">${fs.map(([id,l,ty,d])=>`<div class="col-6 col-lg-4"><label class="form-label small mb-0" for="${id}">${l}</label>${ty[0]=='s'?`<select class="form-select" id="${id}">${ty.slice(2).split(',').map(o=>`<option>${o}</option>`).join('')}</select>`:id==='pdd'?`<div class="input-group"><input class="form-control" id="${id}" type="number" step="any" inputmode="decimal" value="${d}"><span class="input-group-text">%</span></div>`:`<input class="form-control" id="${id}" type="${ty=='n'?'number':ty=='d'?'date':'text'}" ${ty=='n'?'step="any" inputmode="decimal"':''} value="${d}">`}</div>`).join('')}</div></div></div>`).join('');run()}
 const getI=()=>Object.fromEntries(IDS.map(k=>[k,$('#'+k).value]));
@@ -309,7 +319,7 @@ function togglePassword(id,button){const input=$('#'+id),show=input.type==='pass
 function validPassword(password){return password.length>=8&&[/[a-z]/.test(password),/[A-Z]/.test(password),/[0-9]/.test(password),/[^A-Za-z0-9]/.test(password)].filter(Boolean).length>=2}
 function updatePasswordStrength(){const password=$('#register-password').value,label=$('#password-strength');label.textContent=!password?'Gunakan minimal 8 karakter.':validPassword(password)?'Kekuatan password cukup.':'Gunakan minimal 8 karakter dan kombinasikan huruf, angka, atau simbol.'}
 const setFormBusy=(form,busy)=>form.querySelectorAll('button[type="submit"]').forEach(button=>button.disabled=busy);
-async function enterWorkspace(session){if(!session?.user)return showAuth('login','Sesi tidak valid. Silakan masuk kembali.',true);const verified=session.user.email_confirmed_at||session.user.confirmed_at;if(!verified){await sb.auth.signOut();return showAuth('login','Verifikasi email sebelum masuk.',true)}currentSession=session;currentUser=session.user;recoverySession=null;hist=[];historyStatus='idle';historyError='';$('#auth-view').hidden=true;$('#workspace').hidden=false;show('dash');await pull(true);show('dash')}
+async function enterWorkspace(session){if(!session?.user)return showAuth('login','Sesi tidak valid. Silakan masuk kembali.',true);const verified=session.user.email_confirmed_at||session.user.confirmed_at;if(!verified){await sb.auth.signOut();return showAuth('login','Verifikasi email sebelum masuk.',true)}const remember=$('#remember-login').checked;if(remember&&session.user.email)storeRememberedLogin(session.user.email);else if(!remember){try{localStorage.removeItem(REMEMBERED_LOGIN_KEY)}catch(e){toast('Email login yang diingat tidak dapat dihapus: '+e.message,1)}}currentSession=session;currentUser=session.user;recoverySession=null;hist=[];historyStatus='idle';historyError='';$('#auth-view').hidden=true;$('#workspace').hidden=false;show('dash');await pull(true);show('dash')}
 async function initializeAuth(){if(!sb)return showAuth('login','Supabase belum tersedia. Muat ulang aplikasi saat online.',true);const{data,error}=await sb.auth.getSession();if(recoverySession)return;if(error){showAuth('login','Sesi tidak dapat diperiksa. Silakan masuk kembali.',true);return}if(data.session){await enterWorkspace(data.session);return}showAuth('login')}
 async function logout(){if(!sb)return;const{error}=await sb.auth.signOut();if(error)return toast('Gagal keluar: '+error.message,1);currentSession=null;currentUser=null;hist=[];historyStatus='idle';historyError='';renderHist();showAuth('login','Anda telah keluar.')}
 
@@ -322,6 +332,6 @@ $('#forgot-form').addEventListener('submit',async event=>{event.preventDefault()
 $('#reset-form').addEventListener('submit',async event=>{event.preventDefault();const form=event.currentTarget,password=$('#reset-password').value,confirmPassword=$('#reset-confirm').value;setFormBusy(form,true);try{if(!recoverySession||!currentSession)throw new Error('Buka tautan pemulihan dari email sebelum mengatur password.');if(!validPassword(password))throw new Error('Password minimal 8 karakter dan memakai sedikitnya dua jenis karakter.');if(password!==confirmPassword)throw new Error('Password baru dan konfirmasi tidak cocok.');const{error}=await sb.auth.updateUser({password});if(error)throw error;await sb.auth.signOut();currentSession=null;currentUser=null;recoverySession=null;showAuth('login','Password berhasil diubah. Silakan masuk dengan password baru.')}catch(e){showAuth('reset',e.message||'Password tidak dapat diubah.',true)}finally{setFormBusy(form,false)}});
 
 sb?.auth.onAuthStateChange((event,session)=>{if(event==='PASSWORD_RECOVERY'&&session){recoverySession=session;currentSession=session;showAuth('reset')}else if(event==='SIGNED_OUT'){currentSession=null;currentUser=null;hist=[];historyStatus='idle';historyError='';renderHist();showAuth('login')}});
-theme();build();initSB();initializeAuth();
+theme();build();initSB();initRememberLogin();initializeAuth();
 if('serviceWorker' in navigator&&location.protocol.startsWith('http'))navigator.serviceWorker.register('sw.js').catch(()=>{});
 </script></body></html>
