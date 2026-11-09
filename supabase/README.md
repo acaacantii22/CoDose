@@ -2,7 +2,7 @@
 
 The frontend uses the public publishable key only. Measurement history uses the existing `public."Riwayat Pengukuran"` table. Its verified columns are `id` (identity primary key), `created_at`, `machine`, `chamber`, `dw_zerf`, and `gy`. The application stores its full calculation payload in the `data` JSONB column and scopes rows to the signed-in user through `user_id` and row-level security (RLS). The existing `dw_zerf` and `gy` values are left unchanged because their meaning is not defined by the schema.
 
-The Dashboard loads its latest saved measurement directly from this table, filtered by the active Auth user ID, ordered by `created_at` descending, and limited to one row. Its saved-measurement count is queried separately with the same user filter; calculator state is never used as a Dashboard result.
+The Dashboard loads saved measurements directly from this table, filtered by the active Auth user ID. It chooses the latest measurement by the saved payload's `data.I.date` (the calculator's measurement-date input), using `created_at` descending only to break ties on the same measurement date. The `data.I.time` field is treatment duration in minutes, not a time-of-day. The saved-measurement count is queried separately with the same user filter; calculator state is never used as a Dashboard result.
 
 ## Secure the existing history table
 
