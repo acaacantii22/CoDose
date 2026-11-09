@@ -4,7 +4,7 @@ The frontend uses the public publishable key only. Measurement history uses the 
 
 ## Secure the existing history table
 
-Run `migrations/20261109_secure_existing_history.sql` in the Supabase SQL Editor after reviewing it. It only adds `user_id` and `data` to the existing table, enables RLS, and grants authenticated users only the select/insert/delete privileges needed by the app. It does not create, drop, or backfill any table or row. Existing rows have no verified owner, so they remain inaccessible under RLS rather than being assigned to an account.
+Run `migrations/20261109_secure_existing_history.sql` in the Supabase SQL Editor after reviewing it. It only adds `user_id` and `data` to the existing table, enables RLS, and grants authenticated users only the select/insert/delete privileges needed by the app. It does not create, drop, or backfill any table or row. Existing rows have no verified owner, so they remain inaccessible under RLS rather than being assigned to an account. Until this migration is applied, history requests fail because the live table has no `user_id` or `data` columns (`42703: undefined_column`).
 
 The older `migrations/20261104_auth_history.sql` is retired and must not be applied; it created a separate history table. This history migration does not configure account registration or username login. Keep any already-deployed Auth profile and Edge Function setup separately.
 

@@ -180,6 +180,7 @@ h1,h2,h3,.h1,.h2,.h3,.h4,.h5,.h6{font-family:Manrope,"DM Sans",sans-serif;color:
 <div class="small text-secondary">Dw(zref)</div><div class="res" id="rz">-</div>
 <div class="small text-secondary mt-3">Dw(zmax)</div><div class="h4 mb-0" id="rm">-</div>
 <div class="small text-secondary mt-3">Laju dosis pada zmax</div><div class="h5 mb-0" id="rr">-</div>
+<div class="small text-secondary mt-3">Deviasi</div><div class="h5 mb-0" id="rdv">-</div>
 <div id="warn" class="small mt-2 text-secondary"></div>
 <div class="d-flex flex-wrap gap-2 mt-3">
 <button class="btn btn-navy" onclick="save()">Simpan</button>
@@ -223,22 +224,22 @@ h1,h2,h3,.h1,.h2,.h3,.h4,.h5,.h6{font-family:Manrope,"DM Sans",sans-serif;color:
 const $=s=>document.querySelector(s),LS=(k,v)=>{try{if(v===undefined)return JSON.parse(localStorage.getItem(k)||'null');localStorage.setItem(k,JSON.stringify(v))}catch(e){return null}};
 // [id,label,type,default]; type n=number, t=text, d=date, s:A,B=select
 const G=[
-['Reference Conditions',[['machine','Mesin','t','Co-60'],['phantom','Phantom','t','Water'],['setup','Setup','s:SSD,SAD','SSD'],['ssd','SSD/SAD (cm)','n','80'],['fs','Field size (cm)','t','10x10'],['rd','Reference distance (cm)','n','80'],['zref','zref (cm)','n','5']]],
+['Reference Conditions',[['machine','Mesin','t','Co-60'],['phantom','Phantom','t','Water'],['setup','Setup','s:SSD,SAD','SSD'],['ssd','SSD/SAD (cm)','n','80'],['fs','Field size (cm)','t','10x10'],['rd','Reference distance (cm)','n','80'],['zref','zref (cm)','n','5'],['tps','Laju Dosis TPS (cGy)','n','']]],
 ['Chamber',[['cmodel','Model chamber','t',''],['cser','Serial number','t',''],['ctype','Tipe chamber','t','Cylindrical']]],
 ['Calibration',[['nd','N_D,w (Gy/nC)','n',''],['p0','P0 (kPa)','n','101.325'],['t0','T0 (C)','n','20'],['kelec','k_elec','n','1']]],
 ['Measurement',[['date','Tanggal','d',new Date().toISOString().slice(0,10)],['m','Raw reading M (nC)','n',''],['time','Waktu (min)','n','1'],['temp','Suhu (C)','n',''],['press','Tekanan (kPa)','n','']]],
 ['Polarity',[['mp','M+ (nC)','n',''],['mn','M- (nC)','n','']]],
 ['Recombination',[['v1','V1 (V)','n','300'],['m1','M1 (nC)','n',''],['v2','V2 (V)','n','150'],['m2','M2 (nC)','n','']]],
-['Dose at zmax',[['pdd','PDD(zref) % (SSD) atau TMR(zref) (SAD)','n','']]],
+['Dose at zmax',[['pdd','PDD(zref) (SSD) atau TMR(zref) (SAD)','n','']]],
 ['Catatan',[['note','Catatan pengukuran','t','']]]];
 const IDS=G.flatMap(x=>x[1].map(f=>f[0]));
 const KS=[[2,2.337,-3.636,2.299],[2.5,1.474,-1.587,1.114],[3,1.198,-.875,.677],[3.5,1.080,-.542,.463],[4,1.022,-.363,.341],[5,.975,-.188,.214]];
 let themeMode=LS('cd_theme')||(LS('cd_set')||{}).theme||'light';
 LS('cd_theme',themeMode);
 try{localStorage.removeItem('cd_set')}catch(e){}
-let cur=null,hist=[],sb=null,currentSession=null,currentUser=null,recoverySession=null,isSaving=false;
+let cur=null,hist=[],sb=null,currentSession=null,currentUser=null,recoverySession=null,isSaving=false,historyStatus='idle',historyError='',historyRequest=null,historyRequestUserId=null;
 
-function build(){$('#form').innerHTML=G.map(([t,fs])=>`<div class="card mb-3"><div class="card-body"><h3 class="h6 text-secondary">${t}</h3><div class="row g-2">${fs.map(([id,l,ty,d])=>`<div class="col-6 col-lg-4"><label class="form-label small mb-0" for="${id}">${l}</label>${ty[0]=='s'?`<select class="form-select" id="${id}">${ty.slice(2).split(',').map(o=>`<option>${o}</option>`).join('')}</select>`:`<input class="form-control" id="${id}" type="${ty=='n'?'number':ty=='d'?'date':'text'}" ${ty=='n'?'step="any" inputmode="decimal"':''} value="${d}">`}</div>`).join('')}</div></div></div>`).join('');run()}
+function build(){$('#form').innerHTML=G.map(([t,fs])=>`<div class="card mb-3"><div class="card-body"><h3 class="h6 text-secondary">${t}</h3><div class="row g-2">${fs.map(([id,l,ty,d])=>`<div class="col-6 col-lg-4"><label class="form-label small mb-0" for="${id}">${l}</label>${ty[0]=='s'?`<select class="form-select" id="${id}">${ty.slice(2).split(',').map(o=>`<option>${o}</option>`).join('')}</select>`:id==='pdd'?`<div class="input-group"><input class="form-control" id="${id}" type="number" step="any" inputmode="decimal" value="${d}"><span class="input-group-text">%</span></div>`:`<input class="form-control" id="${id}" type="${ty=='n'?'number':ty=='d'?'date':'text'}" ${ty=='n'?'step="any" inputmode="decimal"':''} value="${d}">`}</div>`).join('')}</div></div></div>`).join('');run()}
 const getI=()=>Object.fromEntries(IDS.map(k=>[k,$('#'+k).value]));
 
 function ksOf(v,r){if(!(v>=2&&v<=5))throw'V1/V2 harus 2 sampai 5 (TRS-398 Tabel 9).';let i=0;while(i<4&&v>KS[i+1][0])i++;const a=KS[i],b=KS[i+1],t=(v-a[0])/(b[0]-a[0]),c=[1,2,3].map(k=>a[k]+t*(b[k]-a[k]));return{c,ks:c[0]+c[1]*r+c[2]*r*r}}
@@ -248,7 +249,8 @@ f.kpol=(Math.abs(N('mp'))+Math.abs(N('mn')))/(2*Math.abs(N('m')));
 const v=N('v1')/N('v2'),r=N('m1')/N('m2'),s=ksOf(v,r);f.ks=s.ks;f.kelec=N('kelec');
 f.Mq=N('m')*f.kTP*f.kelec*f.kpol*f.ks;f.Dz=f.Mq*N('nd');
 const q=I.setup=='SAD'?N('pdd'):N('pdd')/100;f.Dmax=f.Dz/q;f.rate=f.Dmax/N('time');
-if(Object.values(f).some(x=>!isFinite(x)))throw'Lengkapi input untuk menghitung.';
+const tps=N('tps');f.deviation=Number.isFinite(tps)&&tps!==0?((f.Dmax*100)-tps)/tps:null;
+if(Object.values(f).some(x=>x!==null&&!isFinite(x)))throw'Lengkapi input untuk menghitung.';
 return{f,v,r,c:s.c,q}}
 const x=(n,d=4)=>Number(n).toFixed(d);
 function D(I,R){const f=R.f;return[
@@ -259,36 +261,37 @@ function D(I,R){const f=R.f;return[
 ['M_corr','M * kTP * kelec * kpol * ks',`${I.m} * ${x(f.kTP)} * ${x(f.kelec)} * ${x(f.kpol)} * ${x(f.ks)}`,x(f.Mq)+' nC'],
 ['Dw(zref)','M_corr * N_D,w * kQ (kQ=1)',`${x(f.Mq)} * ${I.nd}`,x(f.Dz)+' Gy'],
 ['Dw(zmax)',I.setup=='SAD'?'Dw(zref)/TMR':'Dw(zref)/(PDD/100)',`${x(f.Dz)} / ${x(R.q)}`,x(f.Dmax)+' Gy'],
-['Laju dosis','Dw(zmax)/t',`${x(f.Dmax)} / ${I.time}`,x(f.rate)+' Gy/min']]}
+['Laju dosis','Dw(zmax)/t',`${x(f.Dmax)} / ${I.time}`,x(f.rate)+' Gy/min'],
+['Deviasi','((Dw(zmax) * 100) - Laju Dosis TPS) / Laju Dosis TPS',f.deviation==null?'-':`((${x(f.Dmax)} * 100) - ${I.tps}) / ${I.tps}`,f.deviation==null?'-':x(f.deviation)]]}
 
 function run(){const w=$('#warn');try{const I=getI(),R=compute(I);cur={I,R};
-$('#rz').textContent=x(R.f.Dz)+' Gy';$('#rm').textContent=x(R.f.Dmax)+' Gy';$('#rr').textContent=x(R.f.rate)+' Gy/min';
+$('#rz').textContent=x(R.f.Dz)+' Gy';$('#rm').textContent=x(R.f.Dmax)+' Gy';$('#rr').textContent=x(R.f.rate)+' Gy/min';$('#rdv').textContent=R.f.deviation===null?'-':x(R.f.deviation);
 $('#det').innerHTML=D(I,R).map(r=>`<tr><td class="fw-semibold">${escapeHtml(r[0])}</td><td>${escapeHtml(r[1])}</td><td class="text-secondary">${escapeHtml(r[2])}</td><td class="fw-bold text-nowrap">${escapeHtml(r[3])}</td></tr>`).join('');
 w.className='small mt-2 text-warning';w.textContent=R.f.ks<1||R.f.ks>1.05?'Periksa ks: di luar rentang tipikal 1,000 sampai 1,050.':''}
-catch(e){cur=null;['rz','rm','rr'].forEach(k=>$('#'+k).textContent='-');$('#det').innerHTML='';w.className='small mt-2 text-secondary';w.textContent=typeof e=='string'?e:'Lengkapi input untuk menghitung.'}}
+catch(e){cur=null;['rz','rm','rr','rdv'].forEach(k=>$('#'+k).textContent='-');$('#det').innerHTML='';w.className='small mt-2 text-secondary';w.textContent=typeof e=='string'?e:'Lengkapi input untuk menghitung.'}}
 document.addEventListener('input',e=>{if(e.target.closest('#form'))run()});
 
 const escapeHtml=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 function toast(m,bad){const t=$('#toast');t.innerHTML=`<div class="alert alert-${bad?'danger':'success'} shadow mb-0">${escapeHtml(m)}</div>`;setTimeout(()=>t.innerHTML='',4000)}
 function initSB(){sb=window.supabaseClient||null}
 const updateDashboard=()=>{const h=hist[0];$('#d-n').textContent=hist.length;$('#d-date').textContent=h?h.I.date:'-';$('#d-dz').textContent=h?x(h.R.f.Dz)+' Gy':'-'};
-async function save(){if(!cur)return toast('Lengkapi input sebelum menyimpan.',1);if(!sb||!currentUser)return toast('Masuk terlebih dahulu untuk menyimpan riwayat.',1);if(isSaving)return;isSaving=true;
-const rec={ts:new Date().toISOString(),I:cur.I,R:cur.R},supabase=sb;
-try{const{data,error}=await supabase.from('Riwayat Pengukuran').insert({user_id:currentUser.id,machine:rec.I.machine||'Co-60',chamber:(rec.I.cmodel+' '+rec.I.cser).trim(),data:rec}).select('id').single();if(error)return toast('Riwayat gagal disimpan: '+error.message,1);hist=[{...rec,sid:data.id},...hist];renderHist();updateDashboard();toast('Riwayat tersimpan di Supabase.')}catch(e){toast('Riwayat gagal disimpan: '+e.message,1)}finally{isSaving=false}}
-async function pull(silent=false){if(!sb||!currentUser)return false;
-const supabase=sb;
-try{const{data,error}=await supabase.from('Riwayat Pengukuran').select('id,user_id,machine,chamber,data,created_at').eq('user_id',currentUser.id).order('created_at',{ascending:false});
-if(error){toast('Riwayat gagal dimuat: '+error.message,1);return false}if(data.some(r=>!r.data?.I||!r.data?.R)){toast('Riwayat tidak dapat dimuat: ada data kalkulasi yang tidak lengkap.',1);return false}hist=data.map(r=>({...r.data,ts:r.data.ts||r.created_at,I:{...r.data.I,date:r.data.I.date||r.created_at.slice(0,10),machine:r.data.I.machine||r.machine,cmodel:r.data.I.cmodel||r.chamber},sid:r.id}));renderHist();updateDashboard();if(!silent)toast('Riwayat dimuat dari Supabase.');return true}catch(e){toast('Riwayat gagal dimuat: '+e.message,1);return false}}
-function renderHist(){$('#hist').innerHTML=hist.length?hist.map((h,i)=>`<tr><td>${escapeHtml(h.I.date)}</td><td>${escapeHtml(h.I.machine)}</td><td>${escapeHtml(h.I.cmodel)} ${escapeHtml(h.I.cser)}</td><td class="fw-bold">${escapeHtml(x(h.R.f.Dz))}</td><td class="text-nowrap"><button class="btn btn-sm btn-outline-primary" onclick="openRec(${i})">Buka</button> <button class="btn btn-sm btn-outline-secondary" onclick="pdf(hist[${i}])">PDF</button> <button class="btn btn-sm btn-outline-danger" onclick="del(${i})">Hapus</button></td></tr>`).join(''):'<tr><td colspan="5" class="text-center text-secondary py-4">Belum ada pengukuran. Hitung dan simpan dari halaman Kalkulator.</td></tr>'}
+async function save(){if(!cur)return toast('Lengkapi input sebelum menyimpan.',1);if(!sb||!currentSession?.user?.id||currentSession.user.id!==currentUser?.id)return toast('Masuk terlebih dahulu untuk menyimpan riwayat.',1);if(isSaving)return;isSaving=true;
+const ownerId=currentSession.user.id,rec={ts:new Date().toISOString(),I:cur.I,R:cur.R},supabase=sb;
+try{const{data,error}=await supabase.from('Riwayat Pengukuran').insert({user_id:ownerId,machine:rec.I.machine||'Co-60',chamber:(rec.I.cmodel+' '+rec.I.cser).trim(),data:rec}).select('id').single();if(error)throw error;if(currentSession?.user?.id!==ownerId||currentUser?.id!==ownerId)return;hist=[{...rec,sid:data.id},...hist];historyStatus='ready';historyError='';renderHist();updateDashboard();toast('Riwayat tersimpan di Supabase.')}catch(e){toast('Riwayat gagal disimpan: '+(e.message||String(e)),1)}finally{isSaving=false}}
+async function pull(silent=false){const ownerId=currentSession?.user?.id;if(!sb||!ownerId||currentUser?.id!==ownerId)return false;if(historyRequest&&historyRequestUserId===ownerId)return historyRequest;
+const supabase=sb;historyStatus='loading';historyError='';renderHist();
+const request=Promise.resolve().then(async()=>{try{const{data,error}=await supabase.from('Riwayat Pengukuran').select('id,user_id,machine,chamber,data,created_at').eq('user_id',ownerId).order('created_at',{ascending:false});if(error)throw error;if(currentSession?.user?.id!==ownerId||currentUser?.id!==ownerId)return false;if(data.some(r=>!r.data?.I||!r.data?.R))throw new Error('Ditemukan baris tanpa payload kalkulasi lengkap. Periksa kolom data pada tabel.');hist=data.map(r=>({...r.data,ts:r.data.ts||r.created_at,I:{...r.data.I,date:r.data.I.date||r.created_at.slice(0,10),machine:r.data.I.machine||r.machine,cmodel:r.data.I.cmodel||r.chamber},sid:r.id}));historyStatus='ready';historyError='';renderHist();updateDashboard();if(!silent)toast('Riwayat dimuat dari Supabase.');return true}catch(e){if(currentSession?.user?.id===ownerId){historyStatus='error';historyError=e.message||String(e);renderHist()}return false}finally{if(historyRequest===request){historyRequest=null;historyRequestUserId=null}}});
+historyRequest=request;historyRequestUserId=ownerId;return request}
+function renderHist(){const body=$('#hist');if(historyStatus==='loading'){body.innerHTML='<tr><td colspan="5" class="text-center text-secondary py-4">Memuat riwayat...</td></tr>';return}if(historyStatus==='error'){body.innerHTML=`<tr><td colspan="5" class="text-center text-danger py-4">Riwayat gagal dimuat: ${escapeHtml(historyError)} <button class="btn btn-sm btn-outline-primary ms-2" onclick="pull()">Coba lagi</button></td></tr>`;return}body.innerHTML=hist.length?hist.map((h,i)=>`<tr><td>${escapeHtml(h.I.date)}</td><td>${escapeHtml(h.I.machine)}</td><td>${escapeHtml(h.I.cmodel)} ${escapeHtml(h.I.cser)}</td><td class="fw-bold">${escapeHtml(x(h.R.f.Dz))}</td><td class="text-nowrap"><button class="btn btn-sm btn-outline-primary" onclick="openRec(${i})">Buka</button> <button class="btn btn-sm btn-outline-secondary" onclick="pdf(hist[${i}])">PDF</button> <button class="btn btn-sm btn-outline-danger" onclick="del(${i})">Hapus</button></td></tr>`).join(''):'<tr><td colspan="5" class="text-center text-secondary py-4">Belum ada pengukuran. Hitung dan simpan dari halaman Kalkulator.</td></tr>'}
 function openRec(i){Object.entries(hist[i].I).forEach(([k,v])=>{const el=$('#'+k);if(el)el.value=v});show('calc');run()}
-async function del(i){if(!confirm('Hapus pengukuran ini?'))return;const h=hist[i];if(!sb||!currentUser||!h.sid)return toast('Riwayat tidak dapat dihapus tanpa sesi aktif.',1);const supabase=sb;try{const{error}=await supabase.from('Riwayat Pengukuran').delete().eq('id',h.sid).eq('user_id',currentUser.id).select('id').single();if(error)return toast('Gagal menghapus dari Supabase: '+error.message,1);hist.splice(i,1);renderHist();updateDashboard();toast('Pengukuran dihapus.')}catch(e){toast('Gagal menghapus dari Supabase: '+e.message,1)}}
+async function del(i){if(!confirm('Hapus pengukuran ini?'))return;const h=hist[i],ownerId=currentSession?.user?.id;if(!sb||!ownerId||currentUser?.id!==ownerId||!h.sid)return toast('Riwayat tidak dapat dihapus tanpa sesi aktif.',1);const supabase=sb;try{const{error}=await supabase.from('Riwayat Pengukuran').delete().eq('id',h.sid).eq('user_id',ownerId).select('id').single();if(error)throw error;if(currentSession?.user?.id!==ownerId||currentUser?.id!==ownerId)return;hist.splice(i,1);renderHist();updateDashboard();toast('Pengukuran dihapus.')}catch(e){toast('Gagal menghapus dari Supabase: '+(e.message||String(e)),1)}}
 
 function pdf(rec){if(!rec)return toast('Belum ada hasil untuk diekspor.',1);if(!window.jspdf)return toast('Pustaka PDF belum termuat (perlu online sekali).',1);
 const d=new jspdf.jsPDF();let y=16;const L=(t,b)=>{d.setFont('helvetica',b?'bold':'normal');d.setFontSize(b?11:9.5);d.splitTextToSize(String(t),180).forEach(s=>{if(y>284){d.addPage();y=16}d.text(s,14,y);y+=5.5})};
 L('CoDose Calculator - Laporan Dosis Absolut Co-60 (IAEA TRS-398)',1);y+=2;
 G.forEach(([t,fs])=>{L(t,1);fs.forEach(([id,l])=>L(`${l}: ${rec.I[id]||'-'}`));y+=2});
 L('Faktor koreksi dan detail perhitungan',1);D(rec.I,rec.R).forEach(r=>{L(`${r[0]} = ${r[1]}`);L(`   = ${r[2]} = ${r[3]}`)});y+=2;
-L('Hasil',1);L(`Dw(zref) = ${x(rec.R.f.Dz)} Gy | Dw(zmax) = ${x(rec.R.f.Dmax)} Gy | Laju dosis = ${x(rec.R.f.rate)} Gy/min`);y+=2;
+L('Hasil',1);L(`Dw(zref) = ${x(rec.R.f.Dz)} Gy | Dw(zmax) = ${x(rec.R.f.Dmax)} Gy | Laju dosis = ${x(rec.R.f.rate)} Gy/min | Deviasi = ${rec.R.f.deviation==null?'-':x(rec.R.f.deviation)}`);y+=2;
 L('Alat bantu hitung; validasi dengan worksheet IAEA resmi dan verifikasi fisikawan medis sebelum dipakai klinis.');
 d.save(`CoDose_${rec.I.date||'laporan'}.pdf`)}
 
@@ -299,15 +302,15 @@ const V=[['dash','Dashboard','<svg viewBox="0 0 24 24" aria-hidden="true"><rect 
 const navMarkup=()=>V.map(([k,l,icon])=>`<button type="button" class="nav-link-app" data-v="${k}" onclick="show('${k}')"><span class="nav-mark">${icon}</span><span>${l}</span></button>`).join('');
 $('#nav').innerHTML=navMarkup();$('#mobile-nav').innerHTML=navMarkup();
 function show(k){V.forEach(([v])=>$('#v-'+v).hidden=v!==k);document.querySelectorAll('.nav-link-app').forEach(a=>{const active=a.dataset.v===k;a.classList.toggle('on',active);if(active)a.setAttribute('aria-current','page');else a.removeAttribute('aria-current')});
-if(k==='hist'){renderHist();pull()}if(k==='dash')updateDashboard();scrollTo(0,0)}
+if(k==='hist'){renderHist();if(historyStatus!=='ready')pull()}if(k==='dash')updateDashboard();scrollTo(0,0)}
 function showAuth(screen='login',message='',isError=false){$('#workspace').hidden=true;$('#auth-view').hidden=false;document.querySelectorAll('[data-auth-screen]').forEach(view=>view.hidden=view.dataset.authScreen!==screen);const notice=$('#auth-notice');notice.textContent=message;notice.hidden=!message;notice.classList.toggle('is-error',isError);if(screen==='reset')$('#reset-email').value=recoverySession?.user?.email||''}
 function togglePassword(id,button){const input=$('#'+id),show=input.type==='password';input.type=show?'text':'password';button.textContent=show?'Sembunyikan':'Tampilkan'}
 function validPassword(password){return password.length>=8&&[/[a-z]/.test(password),/[A-Z]/.test(password),/[0-9]/.test(password),/[^A-Za-z0-9]/.test(password)].filter(Boolean).length>=2}
 function updatePasswordStrength(){const password=$('#register-password').value,label=$('#password-strength');label.textContent=!password?'Gunakan minimal 8 karakter.':validPassword(password)?'Kekuatan password cukup.':'Gunakan minimal 8 karakter dan kombinasikan huruf, angka, atau simbol.'}
 const setFormBusy=(form,busy)=>form.querySelectorAll('button[type="submit"]').forEach(button=>button.disabled=busy);
-async function enterWorkspace(session){if(!session?.user)return showAuth('login','Sesi tidak valid. Silakan masuk kembali.',true);const verified=session.user.email_confirmed_at||session.user.confirmed_at;if(!verified){await sb.auth.signOut();return showAuth('login','Verifikasi email sebelum masuk.',true)}currentSession=session;currentUser=session.user;recoverySession=null;hist=[];$('#auth-view').hidden=true;$('#workspace').hidden=false;show('dash');await pull(true);show('dash')}
+async function enterWorkspace(session){if(!session?.user)return showAuth('login','Sesi tidak valid. Silakan masuk kembali.',true);const verified=session.user.email_confirmed_at||session.user.confirmed_at;if(!verified){await sb.auth.signOut();return showAuth('login','Verifikasi email sebelum masuk.',true)}currentSession=session;currentUser=session.user;recoverySession=null;hist=[];historyStatus='idle';historyError='';$('#auth-view').hidden=true;$('#workspace').hidden=false;show('dash');await pull(true);show('dash')}
 async function initializeAuth(){if(!sb)return showAuth('login','Supabase belum tersedia. Muat ulang aplikasi saat online.',true);const{data,error}=await sb.auth.getSession();if(recoverySession)return;if(error){showAuth('login','Sesi tidak dapat diperiksa. Silakan masuk kembali.',true);return}if(data.session){await enterWorkspace(data.session);return}showAuth('login')}
-async function logout(){if(!sb)return;const{error}=await sb.auth.signOut();if(error)return toast('Gagal keluar: '+error.message,1);currentSession=null;currentUser=null;hist=[];renderHist();showAuth('login','Anda telah keluar.')}
+async function logout(){if(!sb)return;const{error}=await sb.auth.signOut();if(error)return toast('Gagal keluar: '+error.message,1);currentSession=null;currentUser=null;hist=[];historyStatus='idle';historyError='';renderHist();showAuth('login','Anda telah keluar.')}
 
 $('#login-form').addEventListener('submit',async event=>{event.preventDefault();const form=event.currentTarget,identifier=$('#login-identifier').value.trim(),password=$('#login-password').value;setFormBusy(form,true);try{if(!identifier||!password)throw new Error('Masukkan username/email dan password.');if(identifier.includes('@')){const{data,error}=await sb.auth.signInWithPassword({email:identifier,password});if(error||!data.session)throw new Error('Username/email atau password salah, atau email belum diverifikasi.');await enterWorkspace(data.session)}else{const{data,error}=await sb.functions.invoke('login-by-username',{body:{username:identifier,password}});if(error){const unavailable=error.name==='FunctionsFetchError'||error.context?.status===404||/Failed to send|CORS|not deployed/i.test(error.message||'');throw new Error(unavailable?'Login dengan username belum tersedia. Sementara itu, masuk menggunakan email.':'Username atau password salah, atau email belum diverifikasi.')}if(!data?.access_token||!data?.refresh_token)throw new Error('Username atau password salah, atau email belum diverifikasi.');const{data:sessionData,error:sessionError}=await sb.auth.setSession({access_token:data.access_token,refresh_token:data.refresh_token});if(sessionError||!sessionData.session)throw new Error('Sesi login tidak dapat dibuat.');await enterWorkspace(sessionData.session)}}catch(e){showAuth('login',e.message||'Login gagal. Periksa koneksi dan kredensial.',true)}finally{setFormBusy(form,false)}});
 
@@ -317,7 +320,7 @@ $('#forgot-form').addEventListener('submit',async event=>{event.preventDefault()
 
 $('#reset-form').addEventListener('submit',async event=>{event.preventDefault();const form=event.currentTarget,password=$('#reset-password').value,confirmPassword=$('#reset-confirm').value;setFormBusy(form,true);try{if(!recoverySession||!currentSession)throw new Error('Buka tautan pemulihan dari email sebelum mengatur password.');if(!validPassword(password))throw new Error('Password minimal 8 karakter dan memakai sedikitnya dua jenis karakter.');if(password!==confirmPassword)throw new Error('Password baru dan konfirmasi tidak cocok.');const{error}=await sb.auth.updateUser({password});if(error)throw error;await sb.auth.signOut();currentSession=null;currentUser=null;recoverySession=null;showAuth('login','Password berhasil diubah. Silakan masuk dengan password baru.')}catch(e){showAuth('reset',e.message||'Password tidak dapat diubah.',true)}finally{setFormBusy(form,false)}});
 
-sb?.auth.onAuthStateChange((event,session)=>{if(event==='PASSWORD_RECOVERY'&&session){recoverySession=session;currentSession=session;showAuth('reset')}else if(event==='SIGNED_OUT'){currentSession=null;currentUser=null;hist=[];showAuth('login')}});
+sb?.auth.onAuthStateChange((event,session)=>{if(event==='PASSWORD_RECOVERY'&&session){recoverySession=session;currentSession=session;showAuth('reset')}else if(event==='SIGNED_OUT'){currentSession=null;currentUser=null;hist=[];historyStatus='idle';historyError='';renderHist();showAuth('login')}});
 theme();build();initSB();initializeAuth();
 if('serviceWorker' in navigator&&location.protocol.startsWith('http'))navigator.serviceWorker.register('sw.js').catch(()=>{});
 </script></body></html>
