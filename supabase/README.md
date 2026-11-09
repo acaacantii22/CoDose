@@ -1,10 +1,12 @@
 # Supabase Auth and history setup
 
-The frontend uses the public publishable key only. The existing `Riwayat Pengukuran` table does not expose a user UUID or a calculation payload column through the project's public schema. The migration below intentionally creates a separate `measurement_history` table and a `profiles` table; it does not delete or rewrite rows in the existing table. Existing rows are not copied because their owning Auth UUID cannot be established safely.
+The frontend uses the public publishable key only. Measurement history uses the existing `public."Riwayat Pengukuran"` table. Its verified columns are `id` (identity primary key), `created_at`, `machine`, `chamber`, `dw_zerf`, and `gy`. The application stores its full calculation payload in the `data` JSONB column and scopes rows to the signed-in user through `user_id` and row-level security (RLS). The existing `dw_zerf` and `gy` values are left unchanged because their meaning is not defined by the schema.
 
-## Apply the migration
+## Secure the existing history table
 
-Review and run `migrations/20261104_auth_history.sql` in the Supabase SQL Editor. It creates `profiles`, `measurement_history`, username uniqueness, a profile-creation trigger, grants required by the authenticated client, and per-user RLS policies. It does not alter the existing `Riwayat Pengukuran` table. Do not run it until you have reviewed the effects.
+Run `migrations/20261109_secure_existing_history.sql` in the Supabase SQL Editor after reviewing it. It only adds `user_id` and `data` to the existing table, enables RLS, and grants authenticated users only the select/insert/delete privileges needed by the app. It does not create, drop, or backfill any table or row. Existing rows have no verified owner, so they remain inaccessible under RLS rather than being assigned to an account.
+
+The older `migrations/20261104_auth_history.sql` is retired and must not be applied; it created a separate history table. This history migration does not configure account registration or username login. Keep any already-deployed Auth profile and Edge Function setup separately.
 
 ## Deploy username login
 
@@ -32,4 +34,4 @@ Set these Edge Function secrets in the Supabase dashboard's Edge Function Secret
 - Verify that the confirmation and recovery templates use the Supabase-provided action link.
 - Add the app's exact URL, including its `index.html` redirect, to the Auth redirect allowlist.
 
-The app's registration and recovery redirects use the current app origin. Email delivery and username login cannot be verified until the migration is applied, the Edge Function is deployed with its secrets, and Auth email settings are configured. The `SUPABASE_SERVICE_ROLE_KEY` must never be placed in frontend code or committed files.
+The app's registration and recovery redirects use the current app origin. Email delivery and username login cannot be verified until the Auth profile setup is deployed, the Edge Function is deployed with its secrets, and Auth email settings are configured. The `SUPABASE_SERVICE_ROLE_KEY` must never be placed in frontend code or committed files.
