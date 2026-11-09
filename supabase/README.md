@@ -2,6 +2,8 @@
 
 The frontend uses the public publishable key only. Measurement history uses the existing `public."Riwayat Pengukuran"` table. Its verified columns are `id` (identity primary key), `created_at`, `machine`, `chamber`, `dw_zerf`, and `gy`. The application stores its full calculation payload in the `data` JSONB column and scopes rows to the signed-in user through `user_id` and row-level security (RLS). The existing `dw_zerf` and `gy` values are left unchanged because their meaning is not defined by the schema.
 
+The Dashboard loads its latest saved measurement directly from this table, filtered by the active Auth user ID, ordered by `created_at` descending, and limited to one row. Its saved-measurement count is queried separately with the same user filter; calculator state is never used as a Dashboard result.
+
 ## Secure the existing history table
 
 Run `migrations/20261109_secure_existing_history.sql` in the Supabase SQL Editor after reviewing it. It only adds `user_id` and `data` to the existing table, enables RLS, and grants authenticated users only the select/insert/delete privileges needed by the app. It does not create, drop, or backfill any table or row. Existing rows have no verified owner, so they remain inaccessible under RLS rather than being assigned to an account. Until this migration is applied, history requests fail because the live table has no `user_id` or `data` columns (`42703: undefined_column`).
