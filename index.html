@@ -190,7 +190,7 @@ h1,h2,h3,.h1,.h2,.h3,.h4,.h5,.h6{font-family:Manrope,"DM Sans",sans-serif;color:
 <div class="small text-secondary">Dw(zref)</div><div class="res" id="rz">-</div>
 <div class="small text-secondary mt-3">Dw(zmax)</div><div class="h4 mb-0" id="rm">-</div>
 <div class="small text-secondary mt-3">Laju dosis pada zmax</div><div class="h5 mb-0" id="rr">-</div>
-<div class="small text-secondary mt-3">Deviasi</div><div class="h5 mb-0" id="rdv">-</div>
+<div class="small text-secondary mt-3">Deviasi (%)</div><div class="h5 mb-0" id="rdv">-</div>
 <div id="warn" class="small mt-2 text-secondary"></div>
 <div class="d-flex flex-wrap gap-2 mt-3">
 <button class="btn btn-navy" onclick="save()">Simpan</button>
@@ -234,13 +234,13 @@ h1,h2,h3,.h1,.h2,.h3,.h4,.h5,.h6{font-family:Manrope,"DM Sans",sans-serif;color:
 const $=s=>document.querySelector(s),LS=(k,v)=>{try{if(v===undefined)return JSON.parse(localStorage.getItem(k)||'null');localStorage.setItem(k,JSON.stringify(v))}catch(e){return null}};
 // [id,label,type,default]; type n=number, t=text, d=date, s:A,B=select
 const G=[
-['Reference Conditions',[['machine','Mesin','t','Co-60'],['phantom','Phantom','t','Water'],['setup','Setup','s:SSD,SAD','SSD'],['ssd','SSD/SAD (cm)','n','80'],['fs','Field size (cm)','t','10x10'],['rd','Reference distance (cm)','n','80'],['zref','zref (cm)','n','5'],['tps','Laju Dosis TPS (cGy)','n','']]],
+['Reference Conditions',[['machine','Mesin','t','Co-60'],['phantom','Phantom','t','Water'],['setup','Setup','s:SSD,SAD','SSD'],['ssd','SSD/SAD','n','80','cm'],['fs','Field size','t','10x10','cm'],['rd','Reference distance','n','80','cm'],['zref','zref','n','5','cm'],['tps','Laju Dosis TPS','n','','cGy']]],
 ['Chamber',[['cmodel','Model chamber','t',''],['cser','Serial number','t',''],['ctype','Tipe chamber','t','Cylindrical']]],
-['Calibration',[['nd','N_D,w (Gy/nC)','n',''],['p0','P0 (kPa)','n','101.325'],['t0','T0 (C)','n','20'],['kelec','k_elec','n','1']]],
-['Measurement',[['date','Tanggal','d',new Date().toISOString().slice(0,10)],['m','Raw reading M (nC)','n',''],['time','Waktu (min)','n','1'],['temp','Suhu (C)','n',''],['press','Tekanan (kPa)','n','']]],
-['Polarity',[['mp','M+ (nC)','n',''],['mn','M- (nC)','n','']]],
-['Recombination',[['v1','V1 (V)','n','300'],['m1','M1 (nC)','n',''],['v2','V2 (V)','n','150'],['m2','M2 (nC)','n','']]],
-['Dose at zmax',[['pdd','PDD(zref) (SSD) atau TMR(zref) (SAD)','n','']]],
+['Calibration',[['nd','N_D,w','n','','Gy/nC'],['p0','P0','n','101.325','kPa'],['t0','T0','n','20','°C'],['kelec','k_elec','n','1']]],
+['Measurement',[['date','Tanggal','d',new Date().toISOString().slice(0,10)],['m','Raw reading M','n','','nC'],['time','Waktu','n','1','min'],['temp','Suhu','n','','°C'],['press','Tekanan','n','','kPa']]],
+['Polarity',[['mp','M+','n','','nC'],['mn','M-','n','','nC']]],
+['Recombination',[['v1','V1','n','300','V'],['m1','M1','n','','nC'],['v2','V2','n','150','V'],['m2','M2','n','','nC']]],
+['Dose at zmax',[['pdd','PDD(zref) (SSD) atau TMR(zref) (SAD)','n','','%']]],
 ['Catatan',[['note','Catatan pengukuran','t','']]]];
 const IDS=G.flatMap(x=>x[1].map(f=>f[0]));
 const KS=[[2,2.337,-3.636,2.299],[2.5,1.474,-1.587,1.114],[3,1.198,-.875,.677],[3.5,1.080,-.542,.463],[4,1.022,-.363,.341],[5,.975,-.188,.214]];
@@ -255,7 +255,7 @@ checkbox.addEventListener('change',()=>{if(!checkbox.checked){try{localStorage.r
 input.addEventListener('input',()=>{if(checkbox.checked&&input.value.trim())storeRememberedLogin(input.value.trim())})}
 function storeRememberedLogin(identifier){try{localStorage.setItem(REMEMBERED_LOGIN_KEY,identifier)}catch(e){toast('Email login tidak dapat diingat di perangkat ini: '+e.message,1)}}
 
-function build(){$('#form').innerHTML=G.map(([t,fs])=>`<div class="card mb-3"><div class="card-body"><h3 class="h6 text-secondary">${t}</h3><div class="row g-2">${fs.map(([id,l,ty,d])=>`<div class="col-6 col-lg-4"><label class="form-label small mb-0" for="${id}">${l}</label>${ty[0]=='s'?`<select class="form-select" id="${id}">${ty.slice(2).split(',').map(o=>`<option>${o}</option>`).join('')}</select>`:id==='pdd'?`<div class="input-group"><input class="form-control" id="${id}" type="number" step="any" inputmode="decimal" value="${d}"><span class="input-group-text">%</span></div>`:`<input class="form-control" id="${id}" type="${ty=='n'?'number':ty=='d'?'date':'text'}" ${ty=='n'?'step="any" inputmode="decimal"':''} value="${d}">`}</div>`).join('')}</div></div></div>`).join('');run()}
+function build(){$('#form').innerHTML=G.map(([t,fs])=>`<div class="card mb-3"><div class="card-body"><h3 class="h6 text-secondary">${t}</h3><div class="row g-2">${fs.map(([id,l,ty,d,unit])=>`<div class="col-6 col-lg-4"><label class="form-label small mb-0" for="${id}">${l}</label>${ty[0]=='s'?`<select class="form-select" id="${id}">${ty.slice(2).split(',').map(o=>`<option>${o}</option>`).join('')}</select>`:`<div class="d-flex align-items-center gap-2"><input class="form-control flex-grow-1" id="${id}" type="${ty=='n'?'number':ty=='d'?'date':'text'}" ${ty=='n'?'step="any" inputmode="decimal"':''} value="${d}">${unit?`<span class="small text-secondary text-nowrap">${unit}</span>`:''}</div>`}</div>`).join('')}</div></div></div>`).join('');run()}
 const getI=()=>Object.fromEntries(IDS.map(k=>[k,$('#'+k).value]));
 
 function ksOf(v,r){if(!(v>=2&&v<=5))throw'V1/V2 harus 2 sampai 5 (TRS-398 Tabel 9).';let i=0;while(i<4&&v>KS[i+1][0])i++;const a=KS[i],b=KS[i+1],t=(v-a[0])/(b[0]-a[0]),c=[1,2,3].map(k=>a[k]+t*(b[k]-a[k]));return{c,ks:c[0]+c[1]*r+c[2]*r*r}}
@@ -278,10 +278,10 @@ function D(I,R){const f=R.f;return[
 ['Dw(zref)','M_corr * N_D,w * kQ (kQ=1)',`${x(f.Mq)} * ${I.nd}`,x(f.Dz)+' Gy'],
 ['Dw(zmax)',I.setup=='SAD'?'Dw(zref)/TMR':'Dw(zref)/(PDD/100)',`${x(f.Dz)} / ${x(R.q)}`,x(f.Dmax)+' Gy'],
 ['Laju dosis','Dw(zmax)/t',`${x(f.Dmax)} / ${I.time}`,x(f.rate)+' Gy/min'],
-['Deviasi','((Dw(zmax) * 100) - Laju Dosis TPS) / Laju Dosis TPS',f.deviation==null?'-':`((${x(f.Dmax)} * 100) - ${I.tps}) / ${I.tps}`,f.deviation==null?'-':x(f.deviation)]]}
+['Deviasi (%)','((Dw(zmax) * 100) - Laju Dosis TPS) / Laju Dosis TPS',f.deviation==null?'-':`((${x(f.Dmax)} * 100) - ${I.tps}) / ${I.tps}`,f.deviation==null?'-':x(f.deviation)+' %']]}
 
 function run(){const w=$('#warn');try{const I=getI(),R=compute(I);cur={I,R};
-$('#rz').textContent=x(R.f.Dz)+' Gy';$('#rm').textContent=x(R.f.Dmax)+' Gy';$('#rr').textContent=x(R.f.rate)+' Gy/min';$('#rdv').textContent=R.f.deviation===null?'-':x(R.f.deviation);
+$('#rz').textContent=x(R.f.Dz)+' Gy';$('#rm').textContent=x(R.f.Dmax)+' Gy';$('#rr').textContent=x(R.f.rate)+' Gy/min';$('#rdv').textContent=R.f.deviation===null?'-':x(R.f.deviation)+' %';
 $('#det').innerHTML=D(I,R).map(r=>`<tr><td class="fw-semibold">${escapeHtml(r[0])}</td><td>${escapeHtml(r[1])}</td><td class="text-secondary">${escapeHtml(r[2])}</td><td class="fw-bold text-nowrap">${escapeHtml(r[3])}</td></tr>`).join('');
 w.className='small mt-2 text-warning';w.textContent=R.f.ks<1||R.f.ks>1.05?'Periksa ks: di luar rentang tipikal 1,000 sampai 1,050.':''}
 catch(e){cur=null;['rz','rm','rr','rdv'].forEach(k=>$('#'+k).textContent='-');$('#det').innerHTML='';w.className='small mt-2 text-secondary';w.textContent=typeof e=='string'?e:'Lengkapi input untuk menghitung.'}}
@@ -293,16 +293,17 @@ function initSB(){sb=window.supabaseClient||null}
 function historyFailure(error){return error?.code==='42703'?`Kolom riwayat belum lengkap. Jalankan supabase/migrations/20261109_secure_existing_history.sql di Supabase SQL Editor. Detail: ${error.message}`:error?.message||String(error)}
 function clearDashboard(){['d-date','d-dz','d-dmax','d-rate','d-deviation'].forEach(id=>$('#'+id).textContent='-');$('#d-n').textContent='-'}
 function dashboardStatus(message,state='secondary',retry=false){const el=$('#dashboard-status');el.className=`small text-${state} mb-3`;el.innerHTML=escapeHtml(message)+(retry?' <button class="btn btn-sm btn-outline-primary ms-2" onclick="loadDashboardLatest(true)">Coba lagi</button>':'')}
+function measurementDateValue(value){if(typeof value!=='string'||!/^\d{4}-\d{2}-\d{2}$/.test(value))return null;const timestamp=Date.parse(value+'T00:00:00Z');return Number.isFinite(timestamp)&&new Date(timestamp).toISOString().slice(0,10)===value?timestamp:null}
 async function loadDashboardLatest(force=false){const ownerId=currentSession?.user?.id;if(!sb||!ownerId||currentUser?.id!==ownerId){clearDashboard();dashboardStatus('Masuk untuk melihat ringkasan pengukuran.');return false}if(!force&&dashboardRequest&&dashboardRequestUserId===ownerId)return dashboardRequest;
 const supabase=sb,version=++dashboardRequestVersion;clearDashboard();dashboardStatus('Memuat hasil pengukuran tersimpan...');
-const request=Promise.resolve().then(async()=>{try{const{data,error}=await supabase.from('Riwayat Pengukuran').select('id,user_id,machine,chamber,data,created_at').eq('user_id',ownerId).order('created_at',{ascending:false});if(error)throw error;if(currentSession?.user?.id!==ownerId||currentUser?.id!==ownerId||version!==dashboardRequestVersion)return false;
-if(!data.length){$('#d-n').textContent='0';dashboardStatus('Belum ada pengukuran tersimpan untuk akun ini.');return true}
-const datedRecords=data.filter(record=>/^\d{4}-\d{2}-\d{2}$/.test(record.data?.I?.date||'')&&Number.isFinite(Date.parse(record.data.I.date+'T00:00:00Z'))&&record.data?.R?.f);
-if(!datedRecords.length)throw new Error('Riwayat tidak memiliki tanggal pengukuran dan hasil kalkulasi yang valid.');
-datedRecords.sort((a,b)=>{const dateOrder=b.data.I.date.localeCompare(a.data.I.date);return dateOrder||String(b.created_at||'').localeCompare(String(a.created_at||''))});
-const record=datedRecords[0],result=record.data;
-const measuredDate=new Date(record.data.I.date+'T00:00:00');if(!Number.isFinite(measuredDate.getTime()))throw new Error('Tanggal pengukuran terbaru tidak valid.');
-$('#d-n').textContent=String(data.length);$('#d-date').textContent=new Intl.DateTimeFormat('id-ID',{dateStyle:'long'}).format(measuredDate);$('#d-dz').textContent=Number.isFinite(result.R.f.Dz)?x(result.R.f.Dz)+' Gy':'-';$('#d-dmax').textContent=Number.isFinite(result.R.f.Dmax)?x(result.R.f.Dmax)+' Gy':'-';$('#d-rate').textContent=Number.isFinite(result.R.f.rate)?x(result.R.f.rate)+' Gy/min':'-';$('#d-deviation').textContent=Number.isFinite(result.R.f.deviation)?x(result.R.f.deviation):'-';dashboardStatus(`Pengukuran tanggal ${$('#d-date').textContent}${record.machine?` — ${record.machine}`:''}.`);return true
+const request=Promise.resolve().then(async()=>{try{const records=[],pageSize=1000;for(let from=0;;from+=pageSize){const{data,error}=await supabase.from('Riwayat Pengukuran').select('id,user_id,machine,chamber,data,created_at').eq('user_id',ownerId).order('created_at',{ascending:false}).range(from,from+pageSize-1);if(error)throw error;records.push(...data);if(currentSession?.user?.id!==ownerId||currentUser?.id!==ownerId||version!==dashboardRequestVersion)return false;if(data.length<pageSize)break}
+if(!records.length){$('#d-n').textContent='0';dashboardStatus('Belum ada pengukuran tersimpan untuk akun ini.');return true}
+const datedRecords=records.flatMap(record=>{const measuredAt=measurementDateValue(record.data?.I?.date);return measuredAt!==null&&record.data?.R?.f?[{record,measuredAt}]:[]});
+if(!datedRecords.length){$('#d-n').textContent=String(records.length);dashboardStatus('Riwayat ada, tetapi tidak memiliki tanggal pengukuran valid.');return true}
+const savedAt=record=>{const timestamp=Date.parse(record.created_at||'');return Number.isFinite(timestamp)?timestamp:0};
+datedRecords.sort((a,b)=>(b.measuredAt-a.measuredAt)||(savedAt(b.record)-savedAt(a.record)));
+const{record,measuredAt}=datedRecords[0],result=record.data;
+$('#d-n').textContent=String(records.length);$('#d-date').textContent=new Intl.DateTimeFormat('id-ID',{dateStyle:'long',timeZone:'UTC'}).format(new Date(measuredAt));$('#d-dz').textContent=Number.isFinite(result.R.f.Dz)?x(result.R.f.Dz)+' Gy':'-';$('#d-dmax').textContent=Number.isFinite(result.R.f.Dmax)?x(result.R.f.Dmax)+' Gy':'-';$('#d-rate').textContent=Number.isFinite(result.R.f.rate)?x(result.R.f.rate)+' Gy/min':'-';$('#d-deviation').textContent=Number.isFinite(result.R.f.deviation)?x(result.R.f.deviation)+' %':'-';dashboardStatus(`Pengukuran tanggal ${$('#d-date').textContent}${record.machine?` — ${record.machine}`:''}.`);return true
 }catch(error){if(currentSession?.user?.id===ownerId&&version===dashboardRequestVersion){clearDashboard();dashboardStatus('Dashboard gagal memuat data: '+historyFailure(error),'danger',true)}return false}finally{if(dashboardRequest===request){dashboardRequest=null;dashboardRequestUserId=null}}});
 dashboardRequest=request;dashboardRequestUserId=ownerId;return request}
 async function save(){if(!cur)return toast('Lengkapi input sebelum menyimpan.',1);if(!sb||!currentSession?.user?.id||currentSession.user.id!==currentUser?.id)return toast('Masuk terlebih dahulu untuk menyimpan riwayat.',1);if(isSaving)return;isSaving=true;
@@ -321,7 +322,7 @@ const d=new jspdf.jsPDF();let y=16;const L=(t,b)=>{d.setFont('helvetica',b?'bold
 L('CoDose Calculator - Laporan Dosis Absolut Co-60 (IAEA TRS-398)',1);y+=2;
 G.forEach(([t,fs])=>{L(t,1);fs.forEach(([id,l])=>L(`${l}: ${rec.I[id]||'-'}`));y+=2});
 L('Faktor koreksi dan detail perhitungan',1);D(rec.I,rec.R).forEach(r=>{L(`${r[0]} = ${r[1]}`);L(`   = ${r[2]} = ${r[3]}`)});y+=2;
-L('Hasil',1);L(`Dw(zref) = ${x(rec.R.f.Dz)} Gy | Dw(zmax) = ${x(rec.R.f.Dmax)} Gy | Laju dosis = ${x(rec.R.f.rate)} Gy/min | Deviasi = ${rec.R.f.deviation==null?'-':x(rec.R.f.deviation)}`);y+=2;
+L('Hasil',1);L(`Dw(zref) = ${x(rec.R.f.Dz)} Gy | Dw(zmax) = ${x(rec.R.f.Dmax)} Gy | Laju dosis = ${x(rec.R.f.rate)} Gy/min | Deviasi = ${rec.R.f.deviation==null?'-':x(rec.R.f.deviation)+' %'}`);y+=2;
 L('Alat bantu hitung; validasi dengan worksheet IAEA resmi dan verifikasi fisikawan medis sebelum dipakai klinis.');
 d.save(`CoDose_${rec.I.date||'laporan'}.pdf`)}
 
